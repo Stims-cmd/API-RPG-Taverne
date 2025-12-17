@@ -1,14 +1,14 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 
 def create_app():
     app = Flask(__name__)
 
-    @app.route("/health", methods=["GET"])
-    def health_check():
-        return jsonify({"status": "ok"}), 200
+    @app.route("/", methods=["GET"])
+    def interaction():
+        nom = request.args.get("nom", "Aventurier")
+        return jsonify({"message": f"Bonjour {nom}"}), 200
 
     return app
-
 
 if __name__ == "__main__":
     app = create_app()

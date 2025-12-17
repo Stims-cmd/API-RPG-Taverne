@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mon RPG</title>
+</head>
+<body>
+    <h1>Bonjour ! Choisis ton prénom :</h1>
+
+    <input type="text" id="playerName" placeholder="Ex : Mangeur2Tacos">
+    <button onclick="startGame()">GO !</button>
+
+    <h2 id="welcomeMessage"></h2>
+
+    <script>
+        function startGame() {
+            // Récupérer le nom
+            const name = document.getElementById("playerName").value || "Aventurier";
+            document.getElementById("welcomeMessage").innerText = `Bonjour ${name} !`;
+        }
+    </script>
+</body>
+</html>
