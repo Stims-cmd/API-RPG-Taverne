@@ -2,24 +2,58 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Mon RPG</title>
+    <title>Mini RPG</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="startScreen">
-        <h1>Bonjour ! Choisis ton prénom :</h1>
+        <h1>Bienvenue ! Choisis ton prénom :</h1>
         <input type="text" id="playerName" placeholder="Ex : Mangeur2Tacos">
         <button onclick="startGame()">GO !</button>
     </div>
 
-    <h2 id="welcomeMessage"></h2>
+    <div id="gameScreen" style="display:none;">
+        <h2 id="welcomeMessage"></h2>
+        <div id="playerStats">
+            <p>Santé : <span id="health"></span></p>
+            <p>Énergie : <span id="energy"></span></p>
+            <p>Niveau : <span id="level"></span></p>
+        </div>
+        <h3>Quêtes disponibles :</h3>
+        <ul id="questList"></ul>
+    </div>
 
     <script>
         function startGame() {
-            // Récupérer le nom et enlever le formulaire
+            const name = document.getElementById("playerName").value || "Guardian";
+
+            // Cacher le formulaire
             document.getElementById("startScreen").style.display = "none";
-            const name = document.getElementById("playerName").value || "Aventurier";
-            document.getElementById("welcomeMessage").innerText = `Bienvenue ${name} ! Tu verras ce RPG est fun !`;
+            document.getElementById("gameScreen").style.display = "block";
+
+            document.getElementById("welcomeMessage").innerText = `Bienvenue ${name} !`;
+
+            // Récupérer les infos du joueur
+            fetch(`http://localhost:5000/player/${name}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById("health").innerText = data.health;
+                    document.getElementById("energy").innerText = data.energy;
+                    document.getElementById("level").innerText = data.level;
+                });
+
+            // Récupérer les quêtes
+            fetch("http://localhost:5000/quests")
+                .then(res => res.json())
+                .then(data => {
+                    const questList = document.getElementById("questList");
+                    questList.innerHTML = "";
+                    data.forEach(q => {
+                        const li = document.createElement("li");
+                        li.innerText = `${q.title} - ${q.description} (Récompense : ${q.reward})`;
+                        questList.appendChild(li);
+                    });
+                });
         }
     </script>
 </body>
