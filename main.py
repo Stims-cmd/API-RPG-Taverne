@@ -5,7 +5,7 @@ def create_app():
 
     @app.route("/", methods=["GET"])
     def interaction():
-        nom = request.args.get("nom", "Aventurier")
+        nom = request.args.get("nom", "Guardian")
         return jsonify({"message": f"Bonjour {nom}"}), 200
 
     return app

@@ -3,20 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <title>Mon RPG</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Bonjour ! Choisis ton prénom :</h1>
-
-    <input type="text" id="playerName" placeholder="Ex : Mangeur2Tacos">
-    <button onclick="startGame()">GO !</button>
+    <div id="startScreen">
+        <h1>Bonjour ! Choisis ton prénom :</h1>
+        <input type="text" id="playerName" placeholder="Ex : Mangeur2Tacos">
+        <button onclick="startGame()">GO !</button>
+    </div>
 
     <h2 id="welcomeMessage"></h2>
 
     <script>
         function startGame() {
-            // Récupérer le nom
+            // Récupérer le nom et enlever le formulaire
+            document.getElementById("startScreen").style.display = "none";
             const name = document.getElementById("playerName").value || "Aventurier";
-            document.getElementById("welcomeMessage").innerText = `Bonjour ${name} !`;
+            document.getElementById("welcomeMessage").innerText = `Bienvenue ${name} ! Tu verras ce RPG est fun !`;
         }
     </script>
 </body>
