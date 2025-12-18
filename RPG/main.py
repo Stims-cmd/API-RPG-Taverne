@@ -8,12 +8,13 @@ CORS(app)
 # Route pour servir index.html
 @app.route("/") 
 def serve_index(): 
-    return send_from_directory(os.getcwd(), "index.html") 
+    return send_from_directory(os.getcwd(), "sitev2.html") 
 #Route pour servir style.css
+"""
 @app.route("/style.css") 
 def serve_css(): 
-    return send_from_directory(os.getcwd(), "style.css")
-
+    return send_from_directory(os.getcwd(), "stylev2.css")
+"""
 # --- Données en mémoire ---
 quests = [
     {"id": 1, "title": "Nettoyer la cave", "description": "Des rats dans la cave",

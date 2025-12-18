@@ -3,8 +3,7 @@ WORKDIR /RPG
 
 COPY requirements.txt .
 COPY main.py .
-COPY index.html .
-COPY style.css .
+COPY sitev2.html .
 COPY static ./static
 RUN pip install -r requirements.txt
 

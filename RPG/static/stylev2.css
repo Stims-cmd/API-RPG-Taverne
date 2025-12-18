@@ -1,0 +1,19 @@
+body{
+    background-image: url("/static/image_fond.png");
+    background-size: cover;
+    margin: none;
+    padding:none;
+}
+
+.screenStart{
+    position:fixed;
+    top:0;
+    left:0;
+    backdrop-filter: blur(10px); 
+    background: rgba(255, 255, 255, 0.2);
+    width:100vw;
+    height:100vh;
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center;
+}
