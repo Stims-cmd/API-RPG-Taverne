@@ -17,13 +17,47 @@ def serve_css():
 """
 # --- Données en mémoire ---
 quests = [
-    {"id": 1, "title": "Nettoyer la cave", "description": "Des rats dans la cave",
-     "reward": 50, "base_reward": 50, "status": "available", "modified": False},
-    {"id": 2, "title": "Protéger la caravane", "description": "Escorter les marchands",
+    {"id": 1, "title": "Protéger la caravane",
+     "description": "Le cousin Momo dit qu’il a vu des gadjé rôder près du camp. Achète un douze, sors le Dobermann, et montre-leur que la caravane, c’est sacré, frère.",
      "reward": 100, "base_reward": 100, "status": "available", "modified": False},
-    {"id": 3, "title": "Trouver l'amulette perdue", "description": "Dans la forêt sombre",
-     "reward": 150, "base_reward": 150, "status": "available", "modified": False}
+
+    {"id": 2, "title": "Le casse de la ferraille bénite",
+     "description": "Un gadjo a volé ton radiateur en cuivre béni par le padrino. Infiltre sa casse, récupère ta ferraille... et pourquoi pas sa roumnia aussi, pour l’honneur.",
+     "reward": 150, "base_reward": 150, "status": "available", "modified": False},
+
+    {"id": 3, "title": "Le champion du barbecue",
+     "description": "Le feu c’est la vie, frère. Fais cuire un sanglier entier avant la tombée du jour avec un tas de pneus et trois bidons d’essence. Si ça fume pas jusqu’à la nationale, c’est raté.",
+     "reward": 120, "base_reward": 120, "status": "available", "modified": False},
+
+    {"id": 4, "title": "Du gasoil ou du sang",
+     "description": "Ta bagnole a soif, et les stations sont fermées. Siphonne trois véhicules avant le lever du jour. Fais vite, les keufs aiment pas les bricoleurs de nuit.",
+     "reward": 130, "base_reward": 130, "status": "available", "modified": False},
+
+    {"id": 5, "title": "Rêve de Kévin",
+     "description": "Ta 306 mérite le respect du clan. Monte-lui des pièces de tuning, des bandes LED Temu, un aileron de Boeing, et roule vers la gloire. Si ça clignote plus qu’un mariage à Carpentas, t’as gagné.",
+     "reward": 200, "base_reward": 200, "status": "available", "modified": False},
+
+    {"id": 6, "title": "Le trésor du lithium",
+     "description": "On raconte que sous un vieux rond-point, y’a un stock de batteries lithium oubliées. Déterre le trésor avec la tribu et va le revendre au marché noir. Le cuivre, c’est fini, le futur, c’est les piles !",
+     "reward": 250, "base_reward": 250, "status": "available", "modified": False},
+
+    {"id": 7, "title": "Le camion du destin",
+     "description": "Monte dans ton vieux camion, fais le tour de la ville et remplis ta benne de ferraille. Plus t’en trouves, plus t’es respecté au camp. N’oublie pas : tout ce qui brille, c’est métal.",
+     "reward": 180, "base_reward": 180, "status": "available", "modified": False},
+
+    {"id": 8, "title": "Mariachh et Niversaaaaiiire !",
+     "description": "Ta femme veut lancer Mariachhhh & Niversaaaaaire, un service d’événements un peu spécial. Il deviendra connu sur les réseaux.",
+     "reward": 160, "base_reward": 160, "status": "available", "modified": False},
+
+    {"id": 9, "title": "La SNCF est en retard (encore)",
+     "description": "Y’a des kilomètres de câbles qui dorment sur les rails, mon frère. Va leur alléger un peu la voie et ramène tout au camp. Fais vite avant que les flics comprennent pourquoi plus rien roule.",
+     "reward": 220, "base_reward": 220, "status": "available", "modified": False},
+
+    {"id": 10, "title": "Le calibre de Kendji",
+     "description": "Apprends à manier ton fusil et ta meuf sans te tirer dessus — y’en a qu’ont essayé, y chantent moins bien maintenant.",
+     "reward": 300, "base_reward": 300, "status": "available", "modified": False}
 ]
+
 
 # GET toutes les quêtes
 @app.route("/quests", methods=["GET"])
