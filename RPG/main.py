@@ -1,8 +1,18 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory, render_template
 from flask_cors import CORS
+import os
 
 app = Flask(__name__)
 CORS(app)
+
+# Route pour servir index.html
+@app.route("/") 
+def serve_index(): 
+    return send_from_directory(os.getcwd(), "index.html") 
+#Route pour servir style.css
+@app.route("/style.css") 
+def serve_css(): 
+    return send_from_directory(os.getcwd(), "style.css")
 
 # --- Données en mémoire ---
 quests = [
