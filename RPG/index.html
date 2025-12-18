@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mini RPG CRUD</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="startScreen">
+    <h1>Choisis ton prénom :</h1>
+    <input type="text" id="playerName" placeholder="Ex : Guardian">
+    <button onclick="startGame()">GO !</button>
+</div>
+
+<div id="gameScreen" style="display:none;">
+    <h2 id="welcomeMessage"></h2>
+    <div id="playerStats">
+        <p>Santé : <span id="health"></span></p>
+        <p>Énergie : <span id="energy"></span></p>
+        <p>Niveau : <span id="level"></span></p>
+    </div>
+
+    <h3>Quêtes disponibles :</h3>
+    <ul id="questList"></ul>
+
+    <h3>Quête active :</h3>
+    <p id="activeQuest">Aucune quête sélectionnée</p>
+</div>
+
+<script>
+    let selectedQuestId = null;
+
+    async function startGame() {
+        const name = document.getElementById("playerName").value || "Guardian";
+
+        document.getElementById("startScreen").style.display = "none";
+        document.getElementById("gameScreen").style.display = "block";
+        document.getElementById("welcomeMessage").innerText = "Bienvenue " + name + "!";
+
+        // Stats simples
+        document.getElementById("health").innerText = 100;
+        document.getElementById("energy").innerText = 100;
+        document.getElementById("level").innerText = 1;
+
+        await loadQuests();
+    }
+
+    async function loadQuests() {
+        const response = await fetch("http://localhost:5000/quests");
+        const quests = await response.json();
+
+        const questList = document.getElementById("questList");
+        questList.innerHTML = "";
+
+        quests.forEach(q => {
+            const li = document.createElement("li");
+            li.className = "quest-item";
+            li.id = "quest-" + q.id;
+            li.innerHTML = `
+                <strong>${q.title}</strong> - ${q.description} (Récompense: ${q.reward})
+                <div class="quest-buttons">
+                    <button onclick="acceptQuest(${q.id})">Accepter</button>
+                    <button onclick="declineQuest(${q.id})">Refuser</button>
+                    <button onclick="editQuest(${q.id})">Modifier</button>
+                </div>
+            `;
+            if(q.status === "accepted"){
+                li.classList.add("active");
+                selectedQuestId = q.id;
+                document.getElementById("activeQuest").innerText = q.title;
+            }
+            questList.appendChild(li);
+        });
+    }
+
+    async function acceptQuest(id){
+        if(selectedQuestId && selectedQuestId !== id){
+            alert("Vous ne pouvez accepter qu'une seule quête à la fois !");
+            return;
+        }
+
+        await fetch(`http://localhost:5000/quests/${id}`, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({status: 'accepted'})
+        });
+
+        selectedQuestId = id;
+        document.getElementById("activeQuest").innerText = document.getElementById(`quest-${id}`).querySelector("strong").innerText;
+        await loadQuests();
+    }
+
+    async function declineQuest(id){
+        await fetch(`http://localhost:5000/quests/${id}`, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({status: 'available'})
+        });
+
+        if(selectedQuestId === id){
+            selectedQuestId = null;
+            document.getElementById("activeQuest").innerText = "Aucune quête sélectionnée";
+        }
+
+        await loadQuests();
+    }
+
+    async function editQuest(id){
+    // Récupérer l'élément de la quête
+    const questEl = document.getElementById(`quest-${id}`);
+    
+    // Extraire la récompense actuelle depuis le texte
+    let rewardText = questEl.innerHTML.match(/Récompense: (\d+)/);
+    let reward = rewardText ? parseInt(rewardText[1]) : 50;
+
+    // Calculer la nouvelle récompense aléatoire
+    let maxReward = reward + Math.floor(reward / 2);
+    let newReward = Math.floor(Math.random() * (maxReward - 10 + 1)) + 10;
+
+    // Mettre à jour le backend via PATCH
+    await fetch(`http://localhost:5000/quests/${id}`, {
+        method: 'PATCH',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({reward: newReward})
+    });
+
+    // Recharger la liste des quêtes pour mettre à jour l'affichage
+    await loadQuests();
+    }
+
+</script>
+    </body>
+</html>
