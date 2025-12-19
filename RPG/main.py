@@ -36,55 +36,79 @@ def get_quests():
     conn.close()
     return jsonify(rows)
 
-# PATCH pour modifier titre, statut ou reward
-@app.route("/quests/<int:quest_id>", methods=["PATCH"])
-def update_quest(quest_id):
-    data = request.get_json()
-    for quest in quests:
-        if quest["id"] == quest_id:
-            # Modifier le titre
-            if "title" in data:
-                quest["title"] = data["title"]
-            # Modifier le statut
-            if "status" in data:
-                quest["status"] = data["status"]
-            # Modifier la récompense
-            if "reward" in data:
-                if quest["modified"]:
-                    return jsonify({"error": "Cette quête ne peut plus être modifiée"}), 400
-                new_reward = data["reward"]
-                max_reward = 2 * quest["base_reward"]
-                if new_reward > max_reward:
-                    new_reward = max_reward
-                quest["reward"] = new_reward
-                quest["modified"] = True  # on marque la quête comme modifiée
-            return jsonify(quest), 200
-    return jsonify({"error": "Quête non trouvée"}), 404
 
-# POST pour créer une nouvelle quête
+# CREATION DE QUETE 
 @app.route("/quests", methods=["POST"])
 def create_quest():
-    data = request.get_json()
-    new_id = max(q["id"] for q in quests) + 1 if quests else 1
-    base_reward = data.get("reward", 0)
-    new_quest = {
-        "id": new_id,
-        "title": data.get("title", f"Quête {new_id}"),
-        "description": data.get("description", ""),
-        "reward": base_reward,
-        "base_reward": base_reward,
-        "status": "available",
-        "modified": False
-    }
-    quests.append(new_quest)
-    return jsonify(new_quest), 201
+    data = request.json
 
-# DELETE pour supprimer une quête
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        """
+        INSERT INTO quests (title, description, reward, base_reward, status, modified)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """,
+        (
+            data["title"],
+            data["description"],
+            data["reward"],
+            data["base_reward"],
+            data["status"],
+            data.get("modified", False),
+        ),
+    )
+    conn.commit()
+    quest_id = cur.lastrowid
+    cur.close()
+    conn.close()
+
+    return jsonify({"id": quest_id, **data}), 201
+
+# MODIFICATION QUETE
+@app.route("/quests/<int:quest_id>", methods=["PUT"])
+def update_quest(quest_id):
+    data = request.json
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        """
+        UPDATE quests
+        SET title = %s,
+            description = %s,
+            reward = %s,
+            base_reward = %s,
+            status = %s,
+            modified = %s
+        WHERE id = %s
+        """,
+        (
+            data["title"],
+            data["description"],
+            data["reward"],
+            data["base_reward"],
+            data["status"],
+            data.get("modified", False),
+            quest_id,
+        ),
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return jsonify({"id": quest_id, **data})
+
+# SUPPRESSION QUETE
 @app.route("/quests/<int:quest_id>", methods=["DELETE"])
 def delete_quest(quest_id):
-    global quests
-    quests = [q for q in quests if q["id"] != quest_id]
-    return jsonify({"message": "Quête supprimée"}), 200
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM quests WHERE id = %s", (quest_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return "", 204
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
