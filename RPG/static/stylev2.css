@@ -13,7 +13,26 @@ body{
     background: rgba(255, 255, 255, 0.2);
     width:100vw;
     height:100vh;
+    display:flex;
     flex-direction: column; 
     justify-content: center; 
     align-items: center;
+}
+
+.Startbutton{
+    position:relative;
+    z-index:2;
+    background-color: black;
+    display:flex;
+    align-self: center;
+    border: 5px solid #ff7a00;
+    gap: 10px;
+    border-radius: 5px;
+    padding:15px;
+}
+
+.gobutton{
+    position:relative;
+    z-index:3;
+    background-color: #ff7a00;
 }
