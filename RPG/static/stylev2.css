@@ -1,8 +1,12 @@
 body{
     background-image: url("/static/image_fond.png");
     background-size: cover;
-    margin: none;
-    padding:none;
+    margin: 0;
+    padding:0;
+    display:grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    overflow:hidden;
 }
 
 .screenStart{
@@ -35,4 +39,18 @@ body{
     position:relative;
     z-index:3;
     background-color: #ff7a00;
+}
+
+.QuestScreen{
+    display:none;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    background-image: url("./quest_image.png");
+    background-size: cover;
+    position:relative;
+    z-index: 3;
+    width:250px;
+    height:250px;
+    grid-column: 2;
+    grid-row: 3;
 }

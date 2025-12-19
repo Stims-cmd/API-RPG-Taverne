@@ -14,12 +14,15 @@
                 <button onclick="startGame()" id="StartButton">GO !</button>
             </span>
         </div>
+        <div id="QuestScreen" class="QuestScreen">
 
+        </div>
         <script>
             function startGame(){
                 const name = document.getElementById("Name").value || "Simon";
                 document.getElementById("StartButton").style.display = "none";
                 document.getElementById("screenStart").style.display = "none";
+                document.getElementById("QuestScreen").style.display = "grid";
             }
         </script>
     </body>
