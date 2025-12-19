@@ -7,10 +7,20 @@
         <title>RPG-API</title>
     </head>
     <body>
-        <div class="screenStart">
+        <div id="screenStart" class="screenStart">
             <h1>Choisis ton prénom : </h1>
-            <input type="text" id="Name" placeholder="Simone"required>
-            <button onclick="startGame()" id="StartButton">GO !</button>
+            <span class="Startbutton">
+                <input type="text" id="Name" placeholder="Simon" required>
+                <button onclick="startGame()" id="StartButton">GO !</button>
+            </span>
         </div>
+
+        <script>
+            function startGame(){
+                const name = document.getElementById("Name").value || "Simon";
+                document.getElementById("StartButton").style.display = "none";
+                document.getElementById("screenStart").style.display = "none";
+            }
+        </script>
     </body>
 </html>
