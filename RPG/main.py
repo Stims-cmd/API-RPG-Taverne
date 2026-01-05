@@ -10,12 +10,6 @@ CORS(app)
 @app.route("/") 
 def serve_index(): 
     return send_from_directory(os.getcwd(), "sitev2.html") 
-#Route pour servir style.css
-"""
-@app.route("/style.css") 
-def serve_css(): 
-    return send_from_directory(os.getcwd(), "stylev2.css")
-"""
 
 def get_db_connection():
     return mysql.connector.connect(
@@ -30,7 +24,7 @@ def get_db_connection():
 def get_quests():
     conn = get_db_connection()
     cur = conn.cursor(dictionary=True)
-    cur.execute("SELECT * FROM quests")
+    cur.execute("SELECT * FROM quests ORDER BY RAND() LIMIT 1")
     rows = cur.fetchall()
     cur.close()
     conn.close()

@@ -15,7 +15,8 @@
             </span>
         </div>
         <div id="QuestScreen" class="QuestScreen">
-
+            <button onclick="RandomQuest()" id="random_quete">Voir une quête</button>
+            <p id="aff_quest"> ??? </p>
         </div>
         <script>
             function startGame(){
@@ -24,6 +25,19 @@
                 document.getElementById("screenStart").style.display = "none";
                 document.getElementById("QuestScreen").style.display = "grid";
             }
+            function RandomQuest(){
+                fetch("/quests")
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Quête reçue :", data);
+                        const quest = data[0]; // première ligne
+                        document.getElementById("aff_quest").innerText = quest.title + " : " + quest.description;
+                    })
+                    .catch(error => {
+                        console.error("Erreur lors de l'appel à /quests :", error);
+                    });
+            }
+
         </script>
     </body>
 </html>
