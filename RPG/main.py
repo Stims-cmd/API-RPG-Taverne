@@ -9,7 +9,7 @@ CORS(app)
 # Route pour servir index.html
 @app.route("/") 
 def serve_index(): 
-    return send_from_directory(os.getcwd(), "sitev2.html") 
+    return send_from_directory(os.getcwd(), "sitev3.html") 
 
 def get_db_connection():
     return mysql.connector.connect(
