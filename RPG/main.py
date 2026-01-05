@@ -18,9 +18,9 @@ CORS(app)  # Autorise les requêtes venant d'autres origines (front, JS, etc.)
 def serve_index():
     """
     Route principale : renvoie la page HTML.
-    Le fichier 'sitev2.html' doit être dans le même dossier que ce script.
+    Le fichier 'sitev3.html' doit être dans le même dossier que ce script.
     """
-    return send_from_directory(".", "sitev2.html")
+    return send_from_directory(".", "sitev3.html")
 
 
 @app.route("/style.css")
@@ -29,7 +29,7 @@ def serve_css():
     Route pour servir le fichier CSS.
     Le fichier 'stylev2.css' doit être dans le même dossier que ce script.
     """
-    return send_from_directory(".", "stylev2.css")
+    return send_from_directory(".", "stylev3.css")
 
 
 # ------------------------------------------------------------
