@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG-API v3</title>
+    <link rel="stylesheet" href="/static/stylev3.css">
+</head>
+<body>
+
+    <!-- Écran de démarrage -->
+    <div id="screenStart" class="screenStart">
+        <h1>Choisis ton prénom :</h1>
+        <span class="Startbutton">
+            <input type="text" id="Name" placeholder="Simon" required>
+            <button onclick="startGame()" id="StartButton">GO !</button>
+        </span>
+    </div>
+
+    <!-- Écran des quêtes -->
+    <div id="QuestScreen" class="QuestScreen">
+        <h2>Quête actuelle :</h2>
+        <p id="aff_quest">Aucune quête chargée.</p>
+
+        <div class="quest-buttons">
+            <button onclick="RandomQuest()">Voir une quête aléatoire</button>
+            <button onclick="AcceptQuest()">Accepter</button>
+            <button onclick="ModifyQuest()">Modifier</button>
+            <button onclick="CreateQuest()">Créer une nouvelle quête</button>
+        </div>
+    </div>
+
+    <script>
+        let currentQuest = null;
+
+        function startGame(){
+            document.getElementById("screenStart").style.display = "none";
+            document.getElementById("QuestScreen").style.display = "block";
+        }
+
+        function RandomQuest(){
+            fetch("/quests")
+                .then(response => response.json())
+                .then(data => {
+                    currentQuest = data[0];
+                    document.getElementById("aff_quest").innerText =
+                        currentQuest.title + " : " + currentQuest.description;
+                })
+                .catch(error => console.error("Erreur lors de l'appel à /quests :", error));
+        }
+
+        function AcceptQuest(){
+            if(!currentQuest){
+                alert("Aucune quête à accepter !");
+                return;
+            }
+            alert("Quête acceptée : " + currentQuest.title);
+        }
+
+        function ModifyQuest(){
+            if(!currentQuest){
+                alert("Aucune quête à modifier !");
+                return;
+            }
+
+            const newTitle = prompt("Nouveau titre :", currentQuest.title);
+            const newDesc = prompt("Nouvelle description :", currentQuest.description);
+
+            if(!newTitle || !newDesc) return;
+
+            fetch("/quests/" + currentQuest.id, {
+                method: "PUT",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    title: newTitle,
+                    description: newDesc,
+                    reward: currentQuest.reward,
+                    base_reward: currentQuest.base_reward,
+                    status: currentQuest.status,
+                    modified: true
+                })
+            })
+            .then(res => res.json())
+            .then(updated => {
+                currentQuest = updated;
+                document.getElementById("aff_quest").innerText =
+                    updated.title + " : " + updated.description;
+            });
+        }
+
+        function CreateQuest(){
+            const title = prompt("Titre de la nouvelle quête :");
+            const desc = prompt("Description :");
+
+            if(!title || !desc) return;
+
+            fetch("/quests", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    title: title,
+                    description: desc,
+                    reward: 10,
+                    base_reward: 10,
+                    status: "new",
+                    modified: false
+                })
+            })
+            .then(res => res.json())
+            .then(newQuest => {
+                alert("Nouvelle quête créée !");
+                currentQuest = newQuest;
+                document.getElementById("aff_quest").innerText =
+                    newQuest.title + " : " + newQuest.description;
+            });
+        }
+    </script>
+
+</body>
+</html>
