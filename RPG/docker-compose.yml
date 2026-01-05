@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   api:
-    build:           # dossier où se trouve le Dockerfile de ton API Python
+    build: .
     container_name: api-quests
     restart: always
     environment:
@@ -11,7 +11,7 @@ services:
       MYSQL_PASSWORD: userpass
       MYSQL_DB: quests_db
     ports:
-      - "5000:5000"           # l'API est accessible sur http://localhost:5000
+      - "5000:5000"
     depends_on:
       - db
 
@@ -27,7 +27,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql   # persistance des données MySQL
+      - mysql_data:/var/lib/mysql
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -39,10 +39,9 @@ services:
       PMA_USER: user
       PMA_PASSWORD: userpass
     ports:
-      - "8080:80"              # phpMyAdmin sur http://localhost:8080
+      - "8080:80"
     depends_on:
       - db
 
 volumes:
   mysql_data:
-    
