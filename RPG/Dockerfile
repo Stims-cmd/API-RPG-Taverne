@@ -9,7 +9,6 @@ RUN pip install -r requirements.txt
 
 COPY ./BDD/sql_quest.sql /sql/sql_quest.sql
 COPY ./BDD/BDD.sql.sha256 /sql/BDD.sql.sha256
-RUN ls -l /sql
 RUN sha256sum -c /sql/BDD.sql.sha256
 
 
