@@ -1,3 +1,5 @@
+/*!40101 SET NAMES utf8mb4 */;
+
 DROP TABLE IF EXISTS quests;
 
 CREATE TABLE `quests` (
