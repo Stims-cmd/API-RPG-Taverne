@@ -16,8 +16,11 @@ def get_db_connection():
         host=os.getenv("MYSQL_HOST", "db"),
         user=os.getenv("MYSQL_USER", "user"),
         password=os.getenv("MYSQL_PASSWORD", "userpass"),
-        database=os.getenv("MYSQL_DB", "quests_db")
+        database=os.getenv("MYSQL_DB", "quests_db"),
+        charset="utf8mb4",
+        collation="utf8mb4_unicode_ci"
     )
+
 
 
 @app.route("/quests", methods=["GET"])
