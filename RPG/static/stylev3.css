@@ -83,3 +83,75 @@ button:hover{
     border-radius: 5px;
     min-height: 80px;
 }
+
+/* --- HEADER JOUEUR --- */
+.player-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    background: rgba(0, 0, 0, 0.55);
+    padding: 15px 20px;
+    border-radius: 10px;
+
+    margin-bottom: 20px;
+    width: 90%;
+    color: white;
+}
+
+.player-name, .player-level {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+/* --- BARRE D'XP --- */
+.xp-bar {
+    width: 100%;
+    height: 20px;
+    background: #333;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+#xpFill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to right, limegreen, gold);
+    transition: width 0.3s ease;
+}
+
+.xp-text {
+    font-size: 14px;
+}
+/* --- INVENTAIRE --- */
+.inventory {
+    background: rgba(0,0,0,0.45);
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    width: 90%; /* même largeur que ton header */
+    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.inventory h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: #ff7a00; /* rappel de ta couleur principale */
+}
+
+.inventory p {
+    margin: 0;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.inventory .key-icon {
+    font-size: 18px;
+}

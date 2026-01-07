@@ -8,57 +8,229 @@
 </head>
 <body>
 
-    <!-- Écran de démarrage -->
+    <!-- ============================
+         ÉCRAN DE DÉMARRAGE
+    ============================= -->
     <div id="screenStart" class="screenStart">
         <h1>Choisis ton prénom :</h1>
+
         <span class="Startbutton">
             <input type="text" id="Name" placeholder="Simon" required>
             <button onclick="startGame()" id="StartButton">GO !</button>
         </span>
     </div>
 
-    <!-- Écran des quêtes -->
+    <!-- ============================
+         ÉCRAN DES QUÊTES
+    ============================= -->
     <div id="QuestScreen" class="QuestScreen">
+
+        <!-- ===== HEADER JOUEUR ===== -->
+        <div id="playerHeader" class="player-header">
+
+            <!-- Nom du joueur -->
+            <div class="player-name">
+                👤 <span id="playerName">Nom</span>
+            </div>
+
+            <!-- Niveau -->
+            <div class="player-level">
+                Niveau <span id="playerLevel">1</span>
+            </div>
+
+            <!-- Barre d'XP -->
+            <div class="xp-bar">
+                <div id="xpFill"></div>
+            </div>
+
+            <!-- Texte XP -->
+            <div class="xp-text">
+                XP : <span id="playerXP">0</span> / <span id="xpMax">100</span>
+            </div>
+        </div>
+
+        <!-- ===== INVENTAIRE ===== -->
+        <div id="inventory" class="inventory">
+            <h3>Inventaire</h3>
+            <p>🔑 Clés rares : <span id="keyCount">0</span></p>
+        </div>
+
+        <!-- ===== QUÊTE ACTUELLE ===== -->
         <h2>Quête actuelle :</h2>
         <p id="aff_quest">Aucune quête chargée.</p>
 
+        <!-- ===== BOUTONS ===== -->
         <div class="quest-buttons">
             <button onclick="RandomQuest()">Voir une quête aléatoire</button>
             <button onclick="AcceptQuest()">Accepter</button>
             <button onclick="ModifyQuest()">Modifier</button>
             <button onclick="CreateQuest()">Créer une nouvelle quête</button>
         </div>
+
     </div>
 
     <script>
-        let currentQuest = null;
 
-        function startGame(){
-            document.getElementById("screenStart").style.display = "none";
-            document.getElementById("QuestScreen").style.display = "block";
+        /* =====================================================
+           SYSTÈME JOUEUR
+        ===================================================== */
+
+        let player = {
+            name: "",
+            xp: 0,
+            level: 1,
+            inventory: {
+                keys: 0 // nombre de clés rares
+            }
+        };
+
+        // Sauvegarde du joueur dans le localStorage
+        function savePlayer() {
+            localStorage.setItem("player", JSON.stringify(player));
         }
 
-        function RandomQuest(){
+        // Chargement du joueur
+        function loadPlayer() {
+            const data = localStorage.getItem("player");
+            if (data) player = JSON.parse(data);
+        }
+
+        // Mise à jour de la barre d'XP
+        function updateXPBar() {
+            const xpNeeded = player.level * 100;
+            const percent = (player.xp / xpNeeded) * 100;
+
+            document.getElementById("xpFill").style.width = percent + "%";
+            document.getElementById("playerXP").innerText = player.xp;
+            document.getElementById("xpMax").innerText = xpNeeded;
+            document.getElementById("playerLevel").innerText = player.level;
+        }
+
+        // Mise à jour de l'inventaire
+        function updateInventory() {
+            const keyCount = document.getElementById("keyCount");
+            if (keyCount) keyCount.innerText = player.inventory.keys;
+        }
+
+        // Ajout d'XP au joueur
+        function addXP(amount) {
+            player.xp += amount;
+
+            const xpNeeded = player.level * 100;
+
+            // Passage de niveau
+            if (player.xp >= xpNeeded) {
+                player.xp -= xpNeeded;
+                player.level++;
+                alert("🎉 LEVEL UP ! Niveau " + player.level);
+            }
+
+            savePlayer();
+            updateXPBar();
+        }
+
+        /* =====================================================
+           ÉCRAN DE DÉMARRAGE
+        ===================================================== */
+
+        let currentQuest = null;
+
+        // Démarrage du jeu
+        function startGame() {
+            const name = document.getElementById("Name").value;
+
+            if (!name) {
+                alert("Entre un prénom !");
+                return;
+            }
+
+            player.name = name;
+            savePlayer();
+
+            document.getElementById("playerName").innerText = player.name;
+
+            // Affichage de l'écran des quêtes
+            document.getElementById("screenStart").style.display = "none";
+            document.getElementById("QuestScreen").style.display = "block";
+
+            updateXPBar();
+            updateInventory();
+        }
+
+        /* =====================================================
+           GESTION DES QUÊTES
+        ===================================================== */
+
+        // Récupère une quête aléatoire depuis l'API
+        function RandomQuest() {
             fetch("/quests")
                 .then(response => response.json())
                 .then(data => {
+
                     currentQuest = data[0];
+
+                    // Ajout d'une rareté aléatoire
+                    const rarities = ["common", "common", "rare"];
+                    currentQuest.rarity = rarities[Math.floor(Math.random() * rarities.length)];
+
+                    // Si l'API ne fournit pas de reward → on en génère un
+                    if (!currentQuest.reward) {
+                        currentQuest.reward = Math.floor(Math.random() * 46) + 5;
+                    }
+
                     document.getElementById("aff_quest").innerText =
-                        currentQuest.title + " : " + currentQuest.description;
+                        currentQuest.title + " (" + currentQuest.rarity + ") : " + currentQuest.description;
                 })
                 .catch(error => console.error("Erreur lors de l'appel à /quests :", error));
         }
 
-        function AcceptQuest(){
-            if(!currentQuest){
+        // Accepter une quête
+        function AcceptQuest() {
+            if (!currentQuest) {
                 alert("Aucune quête à accepter !");
                 return;
             }
+
             alert("Quête acceptée : " + currentQuest.title);
+
+            // Si la quête est rare → donne une clé
+            if (currentQuest.rarity === "rare") {
+                player.inventory.keys++;
+                alert("🔑 Tu as obtenu une clé rare !");
+            }
+
+            updateInventory();
+
+            // Si le joueur a 3 clés → quête épique
+            if (player.inventory.keys >= 3) {
+
+                player.inventory.keys -= 3;
+
+                currentQuest = {
+                    title: "⚡ Quête ÉPIQUE",
+                    description: "Une mission dangereuse réservée aux vrais.",
+                    reward: Math.floor(Math.random() * 100) + 80,
+                    rarity: "epic"
+                };
+
+                alert("🔥 Tu débloques une QUÊTE ÉPIQUE !");
+
+                document.getElementById("aff_quest").innerText =
+                    currentQuest.title + " : " + currentQuest.description;
+
+                // XP de la quête épique
+                addXP(currentQuest.reward);
+                updateInventory();
+                return;
+            }
+
+            // XP des quêtes normales
+            addXP(currentQuest.reward);
         }
 
-        function ModifyQuest(){
-            if(!currentQuest){
+        // Modifier une quête existante
+        function ModifyQuest() {
+            if (!currentQuest) {
                 alert("Aucune quête à modifier !");
                 return;
             }
@@ -66,11 +238,11 @@
             const newTitle = prompt("Nouveau titre :", currentQuest.title);
             const newDesc = prompt("Nouvelle description :", currentQuest.description);
 
-            if(!newTitle || !newDesc) return;
+            if (!newTitle || !newDesc) return;
 
             fetch("/quests/" + currentQuest.id, {
                 method: "PUT",
-                headers: {"Content-Type": "application/json"},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     title: newTitle,
                     description: newDesc,
@@ -80,40 +252,73 @@
                     modified: true
                 })
             })
-            .then(res => res.json())
-            .then(updated => {
-                currentQuest = updated;
-                document.getElementById("aff_quest").innerText =
-                    updated.title + " : " + updated.description;
-            });
+                .then(res => res.json())
+                .then(updated => {
+                    currentQuest = updated;
+
+                    document.getElementById("aff_quest").innerText =
+                        updated.title + " : " + updated.description;
+                });
         }
 
-        function CreateQuest(){
+        // Créer une nouvelle quête
+        function CreateQuest() {
             const title = prompt("Titre de la nouvelle quête :");
             const desc = prompt("Description :");
 
-            if(!title || !desc) return;
+            if (!title || !desc) return;
+
+            // Génère un reward entre 5 et 50
+            const reward = Math.floor(Math.random() * 46) + 5;
 
             fetch("/quests", {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     title: title,
                     description: desc,
-                    reward: 10,
-                    base_reward: 10,
+                    reward: reward,
+                    base_reward: reward,
                     status: "new",
                     modified: false
                 })
             })
-            .then(res => res.json())
-            .then(newQuest => {
-                alert("Nouvelle quête créée !");
-                currentQuest = newQuest;
-                document.getElementById("aff_quest").innerText =
-                    newQuest.title + " : " + newQuest.description;
-            });
+                .then(res => res.json())
+                .then(newQuest => {
+
+                    // Si le serveur ne renvoie pas le reward → on le remet
+                    if (!newQuest.reward) {
+                        newQuest.reward = reward;
+                    }
+
+                    currentQuest = newQuest;
+
+                    alert("Nouvelle quête créée ! Récompense : " + newQuest.reward + " XP");
+
+                    document.getElementById("aff_quest").innerText =
+                        newQuest.title + " : " + newQuest.description;
+                })
+                .catch(err => {
+                    console.error("Erreur création quête :", err);
+                    alert("Erreur lors de la création de la quête.");
+                });
         }
+
+        /* =====================================================
+           AUTO-LOAD DU JOUEUR
+        ===================================================== */
+
+        loadPlayer();
+
+        if (player.name) {
+            document.getElementById("screenStart").style.display = "none";
+            document.getElementById("QuestScreen").style.display = "block";
+
+            document.getElementById("playerName").innerText = player.name;
+            updateXPBar();
+            updateInventory();
+        }
+
     </script>
 
 </body>
