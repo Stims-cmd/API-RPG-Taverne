@@ -1,4 +1,4 @@
-from main.py import app
+from main import app
 
 """Test de la page html"""
 def test_serve_index():
