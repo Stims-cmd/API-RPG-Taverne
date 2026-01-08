@@ -1,4 +1,4 @@
-name: Run Pytest
+name: Test + securité
 
 on:
   push:
@@ -24,3 +24,6 @@ jobs:
     - name: Run pytest
       run: pytest tests/test_main.py
       working-directory: RPG
+
+    -name: Run ruff
+    run: ruff check .
