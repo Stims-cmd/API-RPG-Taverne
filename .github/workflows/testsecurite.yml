@@ -25,5 +25,5 @@ jobs:
       run: pytest tests/test_main.py
       working-directory: RPG
 
-    -name: Run ruff
-    run: ruff check .
+    - name: Run ruff
+      run: ruff check .
