@@ -3,6 +3,7 @@ version: '3.8'
 services:
   api:
     build: .
+    image: rpg_api:latest
     container_name: api-quests
     restart: always
     environment:
