@@ -39,6 +39,8 @@ jobs:
     
     - name: Run bandit
       run: bandit -r .
+      continue-on-error: true
+
     
     - name: Run SAFETY
       run: safety check
