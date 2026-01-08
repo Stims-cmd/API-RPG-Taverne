@@ -1,0 +1,281 @@
+/* --- GLOBAL --- */
+body{
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+    background-image: url("/static/image_fond.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: block;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+/* --- ÉCRAN DE DÉMARRAGE (CLASSES + PSEUDO) --- */
+.screenStart{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+
+    backdrop-filter: blur(10px);
+    background: rgba(0, 0, 0, 0.6);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 9999; 
+}
+
+.start-section {
+    margin: 15px 0;
+    text-align: center;
+}
+
+.class-select {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.class-card {
+    background: rgba(255, 255, 255, 0.5);
+    padding: 10px;
+    border-radius: 10px;
+    width: 120px;
+    cursor: pointer;
+    transition: 0.2s;
+    border: 2px solid transparent;
+    text-align: center;
+}
+
+.class-card:hover {
+    transform: scale(1.05);
+    border-color: #ff7a00;
+}
+
+.class-card.selected {
+    border-color: gold;
+    box-shadow: 0 0 10px gold;
+}
+
+.class-img {
+    width: 100%;
+    border-radius: 5px;
+}
+
+/* --- BOUTONS --- */
+button{
+    background-color: #ff7a00;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+button:hover{
+    background-color: #ff9a3d;
+}
+
+/* --- LAYOUT PRINCIPAL EN 3 COLONNES --- */
+.game-layout {
+    display: grid;
+    grid-template-columns: 0.7fr 1fr 0.6fr;
+    gap: 10px;
+    width: 100vw;
+    height: 100vh;
+    padding: 10px;
+}
+
+/* --- PANNEAUX --- */
+.left-panel,
+.center-panel,
+.right-panel {
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(5px);
+    border-radius: 10px;
+    padding: 8px;
+    overflow-y: auto;
+    color: white;
+    font-size: 13px;
+}
+
+/* Scrollbar stylée */
+.left-panel::-webkit-scrollbar,
+.center-panel::-webkit-scrollbar,
+.right-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.left-panel::-webkit-scrollbar-thumb,
+.center-panel::-webkit-scrollbar-thumb,
+.right-panel::-webkit-scrollbar-thumb {
+    background: #ff7a00;
+    border-radius: 10px;
+}
+
+/* --- HEADER JOUEUR --- */
+.player-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background: rgba(0, 0, 0, 0.55);
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.player-name, .player-level, .player-gold {
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.player-stats {
+    font-size: 13px;
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+/* --- BARRE D'XP --- */
+.xp-bar {
+    width: 100%;
+    height: 16px;
+    background: #333;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+#xpFill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to right, limegreen, gold);
+    transition: width 0.3s ease;
+}
+
+.xp-text {
+    font-size: 13px;
+}
+
+/* --- INVENTAIRE --- */
+.inventory {
+    background: rgba(0,0,0,0.45);
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.inventory h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ff7a00;
+}
+
+.inventory p {
+    margin: 0;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#itemList {
+    list-style: none;
+    padding-left: 10px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+#itemList li {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 5px 6px;
+    border-radius: 5px;
+    font-size: 13px;
+}
+
+/* --- QUÊTES --- */
+.quest-buttons{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+#aff_quest{
+    background: rgba(0,0,0,0.5);
+    padding: 8px;
+    border-radius: 5px;
+    min-height: 70px;
+    font-size: 14px;
+}
+
+/* --- SHOP --- */
+.shop {
+    background: rgba(0,0,0,0.45);
+    padding: 10px;
+    border-radius: 10px;
+    width: 100%;
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.shop button {
+    background-color: #ffaa00;
+    padding: 8px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.shop button:hover {
+    background-color: #ffcc55;
+}
+
+/* --- COMBAT --- */
+#fightLog {
+    background: rgba(0,0,0,0.45);
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: 10px;
+    min-height: 80px;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.right-panel {
+    min-height: 300px;
+}
+.player-portrait {
+    width: 100%;
+    max-width: 140px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    display: block;
+}
+.player-class {
+    font-size: 15px;
+    margin-bottom: 6px;
+    color: #ffcc55;
+    font-weight: bold;
+}
+
+/* --- TITRES --- */
+h2 { font-size: 16px; }
+h3 { font-size: 14px; }
