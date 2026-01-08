@@ -35,5 +35,4 @@ jobs:
       run: ruff check . --fix
     
     - name: Run bandit
-      run: bandit -r
-      
+      run: bandit -r .
