@@ -42,20 +42,23 @@ jobs:
       continue-on-error: true
 
     - name: Run SAFETY
-      run: safety check
+      run: safety scan
 
 
   build:
-    needs: tests           
-    if: github.ref == 'refs/heads/main'   
+    needs: tests
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout du Repo
       uses: actions/checkout@v3
-    
-    - name: Build Docker
-      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/rpg_api:3.0 ./RPG/Dockerfile
+
+    - name: Build with Docker Compose
+      run: docker compose -f RPG/docker-compose.yml build
+
+    - name: Tag image
+      run: docker tag rpg_api:latest ${{ secrets.DOCKERHUB_USERNAME }}/rpg_api:3.0
 
     - name: Trivy
       uses: aquasecurity/trivy-action@0.28.0
@@ -68,5 +71,5 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Image >>> DockerHub
+    - name: Push Docker Image
       run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/rpg_api:3.0
