@@ -8,15 +8,12 @@ body{
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-
-    /* FIX : on enlève le centrage qui cassait tout */
     display: block;
-
     font-family: Arial, sans-serif;
     overflow: hidden;
 }
 
-/* --- ÉCRAN DE DÉMARRAGE --- */
+/* --- ÉCRAN DE DÉMARRAGE (CLASSES + PSEUDO) --- */
 .screenStart{
     position: fixed;
     top: 0;
@@ -25,23 +22,54 @@ body{
     height: 100vh;
 
     backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.6);
 
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
+    z-index: 9999; /* ✔️ Passe devant tout */
 }
 
-.Startbutton{
-    background-color: black;
+.start-section {
+    margin: 15px 0;
+    text-align: center;
+}
+
+.class-select {
     display: flex;
-    border: 5px solid #ff7a00;
-    gap: 10px;
-    border-radius: 5px;
-    padding: 15px;
+    gap: 20px;
+    justify-content: center;
 }
 
+.class-card {
+    background: rgba(0,0,0,0.5);
+    padding: 10px;
+    border-radius: 10px;
+    width: 120px;
+    cursor: pointer;
+    transition: 0.2s;
+    border: 2px solid transparent;
+    text-align: center;
+}
+
+.class-card:hover {
+    transform: scale(1.05);
+    border-color: #ff7a00;
+}
+
+.class-card.selected {
+    border-color: gold;
+    box-shadow: 0 0 10px gold;
+}
+
+.class-img {
+    width: 100%;
+    border-radius: 5px;
+}
+
+/* --- BOUTONS --- */
 button{
     background-color: #ff7a00;
     border: none;
@@ -59,11 +87,11 @@ button:hover{
 /* --- LAYOUT PRINCIPAL EN 3 COLONNES --- */
 .game-layout {
     display: grid;
-    grid-template-columns: 0.9fr 1.1fr 0.9fr;
-    gap: 15px;
+    grid-template-columns: 0.7fr 1fr 0.6fr;
+    gap: 10px;
     width: 100vw;
     height: 100vh;
-    padding: 15px;
+    padding: 10px;
 }
 
 /* --- PANNEAUX --- */
@@ -73,10 +101,10 @@ button:hover{
     background: rgba(0,0,0,0.45);
     backdrop-filter: blur(5px);
     border-radius: 10px;
-    padding: 12px;
+    padding: 8px;
     overflow-y: auto;
     color: white;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 /* Scrollbar stylée */
@@ -98,14 +126,11 @@ button:hover{
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-
     background: rgba(0, 0, 0, 0.55);
     padding: 12px;
     border-radius: 10px;
-
     margin-bottom: 15px;
     width: 100%;
-    color: white;
 }
 
 .player-name, .player-level, .player-gold {
@@ -147,7 +172,6 @@ button:hover{
     border-radius: 10px;
     margin-bottom: 15px;
     width: 100%;
-    color: white;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -207,7 +231,6 @@ button:hover{
     border-radius: 10px;
     width: 100%;
     margin-top: 15px;
-
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -218,8 +241,6 @@ button:hover{
     padding: 8px;
     border-radius: 6px;
     font-weight: bold;
-    border: none;
-    cursor: pointer;
     font-size: 13px;
 }
 
@@ -238,21 +259,23 @@ button:hover{
     line-height: 1.4;
 }
 
-.left-panel,
-.center-panel,
 .right-panel {
-    padding: 8px;      
-    font-size: 13px;   
+    min-height: 300px;
+}
+.player-portrait {
+    width: 100%;
+    max-width: 140px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    display: block;
+}
+.player-class {
+    font-size: 15px;
+    margin-bottom: 6px;
+    color: #ffcc55;
+    font-weight: bold;
 }
 
-.game-layout {
-    display: grid;
-    grid-template-columns: 0.7fr 1fr 0.6fr; 
-    gap: 10px;
-    width: 100vw;
-    height: 100vh;
-    padding: 10px;
-}
-
-h2 { font-size: 16px; } 
+/* --- TITRES --- */
+h2 { font-size: 16px; }
 h3 { font-size: 14px; }

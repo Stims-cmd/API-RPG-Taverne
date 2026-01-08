@@ -12,13 +12,43 @@
          ÉCRAN DE DÉMARRAGE
     ============================= -->
     <div id="screenStart" class="screenStart">
-        <h1>Choisis ton prénom :</h1>
 
-        <span class="Startbutton">
-            <input type="text" id="Name" placeholder="Simon" required>
-            <button onclick="startGame()" id="StartButton">GO !</button>
-        </span>
+    <h1>Création du personnage</h1>
+
+    <div class="start-section">
+        <label>Pseudo :</label>
+        <input type="text" id="Name" placeholder="Ton pseudo">
     </div>
+
+    <div class="start-section">
+        <label>Choisis ta classe :</label>
+
+        <div class="class-select">
+
+            <div class="class-card" onclick="selectClass('guerrier')">
+                <img src="/static/guerrier.png" class="class-img">
+                <h3>Guerrier</h3>
+                <p>PV élevés, attaque forte</p>
+            </div>
+
+            <div class="class-card" onclick="selectClass('mage')">
+                <img src="/static/mage.png" class="class-img">
+                <h3>Mage</h3>
+                <p>Sorts puissants, faible défense</p>
+            </div>
+
+            <div class="class-card" onclick="selectClass('archer')">
+                <img src="/static/archer.png" class="class-img">
+                <h3>Archer</h3>
+                <p>Critiques élevés, rapide</p>
+            </div>
+
+        </div>
+    </div>
+
+    <button id="StartButton" onclick="startGame()">Commencer l'aventure</button>
+</div>
+
 
     <!-- ============================
          ÉCRAN DES QUÊTES / JEU
@@ -31,8 +61,10 @@
         <div class="left-panel">
 
             <div id="playerHeader" class="player-header">
+                <img id="playerPortrait" class="player-portrait">
                 <div class="player-name">👤 <span id="playerName">Nom</span></div>
                 <div class="player-level">Niveau <span id="playerLevel">1</span></div>
+                <div class="player-class">Classe : <span id="playerClass">---</span></div>
                 <div class="player-gold">💰 Or : <span id="playerGold">0</span></div>
 
                 <div class="player-stats">
@@ -200,11 +232,13 @@
     }
 
     else if (item.name === "Kit de réparation") {
-        const boost = Math.floor(Math.random() * 11) + 5; // +5 à +15 PV max
-        player.stats.maxHp += boost;
-        player.stats.hp = player.stats.maxHp;
+    const heal = 20; // heal fixe, pas abusé
+    player.stats.hp = Math.min(player.stats.hp + heal, player.stats.maxHp);
 
-        alert("🧰 Tu utilises un kit ! PV max +" + boost);
+    // Bonus défense pour 1 combat
+    player.tempDefense = 1;
+
+    alert("🧰 Tu utilises un kit ! +" + heal + " PV et +1 DEF pour le prochain combat");
     }
 
     else if (item.name === "Pierre magique") {
@@ -259,27 +293,57 @@
 
         let currentQuest = null;
 
-        function startGame() {
-            const name = document.getElementById("Name").value;
+       function startGame() {
+    const name = document.getElementById("Name").value;
 
-            if (!name) {
-                alert("Entre un prénom !");
-                return;
-            }
+    if (!name) {
+        alert("Entre un pseudo !");
+        return;
+    }
+    if (!selectedClass) {
+        alert("Choisis une classe !");
+        return;
+    }
 
-            player.name = name;
-            savePlayer();
+    player.name = name;
+    player.class = selectedClass;
 
-            document.getElementById("playerName").innerText = player.name;
+    // Portrait
+    const portrait = document.getElementById("playerPortrait");
+    if (selectedClass === "guerrier") portrait.src = "/static/guerrier.png";
+    if (selectedClass === "mage")     portrait.src = "/static/mage.png";
+    if (selectedClass === "archer")   portrait.src = "/static/archer.png";
 
-            document.getElementById("screenStart").style.display = "none";
-            document.getElementById("QuestScreen").style.display = "block";
+    // Stats
+    if (selectedClass === "guerrier") {
+        player.stats = { hp: 140, maxHp: 140, attack: 15, defense: 10, luck: 2 };
+    } else if (selectedClass === "mage") {
+        player.stats = { hp: 90, maxHp: 90, attack: 22, defense: 4, luck: 5 };
+    } else if (selectedClass === "archer") {
+        player.stats = { hp: 110, maxHp: 110, attack: 12, defense: 6, luck: 12 };
+    }
 
-            updateXPBar();
-            updateInventory();
-            updateGold();
-            updateStatsUI();
-        }
+    // Texte de la classe à gauche
+    const classText =
+        selectedClass === "guerrier" ? "Guerrier" :
+        selectedClass === "mage"     ? "Mage" :
+        selectedClass === "archer"   ? "Archer" : "---";
+
+    document.getElementById("playerClass").innerText = classText;
+
+    savePlayer();
+
+    document.getElementById("screenStart").style.display = "none";
+    document.getElementById("QuestScreen").style.display = "block";
+
+    document.getElementById("playerName").innerText = player.name;
+    updateStatsUI();
+    updateXPBar();
+    updateInventory();
+    updateGold();
+}
+
+
 
         /* =====================================================
            QUÊTES
@@ -479,11 +543,13 @@
 
         function startFight() {
             const monster = {
-                name: "Gobelin",
-                hp: Math.floor(Math.random() * 40) + 40,
-                attack: Math.floor(Math.random() * 8) + 5,
-                defense: Math.floor(Math.random() * 4) + 2
-            };
+        name: "Gobelin",
+        hp: Math.floor(Math.random() * 60) + 60,      // 60 à 120 PV
+        attack: Math.floor(Math.random() * 10) + 10,  // 10 à 20 ATK
+        defense: Math.floor(Math.random() * 5) + 3,   // 3 à 7 DEF
+        crit: 10                                      // 10% critique
+        };
+
 
             let log = "⚔️ Combat contre un " + monster.name + " !<br>";
 
@@ -503,7 +569,13 @@
                 if (monster.hp <= 0) break;
 
                 // Attaque monstre
+                let playerDefense = player.stats.defense + (player.tempDefense || 0);
                 let dmg2 = monster.attack - player.stats.defense;
+                if (Math.random() * 100 < monster.crit) {
+                dmg2 *= 2;
+                log += "💀 Coup critique du monstre ! ";
+                }
+
                 if (dmg2 < 1) dmg2 = 1;
 
                 player.stats.hp -= dmg2;
@@ -532,12 +604,25 @@
                 log += "✨ +" + xpGain + " XP<br>";
                 log += "💰 +" + goldGain + " or<br>";
             }
+            player.tempDefense = 0; 
 
             updateGold();
             updateStatsUI();
             document.getElementById("fightLog").innerHTML = log;
             savePlayer();
         }
+let selectedClass = null;
+
+function selectClass(cls, el) {
+    selectedClass = cls;
+
+    document.querySelectorAll(".class-card").forEach(c => c.classList.remove("selected"));
+    el.classList.add("selected");
+}
+
+
+
+
 
         /* =====================================================
            AUTO-LOAD
