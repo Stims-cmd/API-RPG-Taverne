@@ -29,4 +29,4 @@ jobs:
       working-directory: RPG
 
     - name: Run ruff
-      run: ruff check .
+      run: ruff check . --fix
