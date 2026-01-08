@@ -27,6 +27,9 @@ jobs:
     - name: Install BANDIT
       run: pip install bandit
 
+    - name: Install SAFETY
+      run: pip install SAFETY
+
     - name: Run pytest
       run: pytest tests/test_main.py
       working-directory: RPG
@@ -36,3 +39,6 @@ jobs:
     
     - name: Run bandit
       run: bandit -r .
+    
+    - name: Run SAFETY
+      run: safety check
