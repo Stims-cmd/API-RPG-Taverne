@@ -1,4 +1,4 @@
-name: Run Pytest
+name: Test + securité
 
 on:
   push:
@@ -21,6 +21,19 @@ jobs:
       run:
         pip install -r ./RPG/requirements.txt
 
+    - name: Install RUFF 
+      run: pip install ruff  
+
+    - name: Install BANDIT
+      run: pip install bandit
+
     - name: Run pytest
-      run: pytest
+      run: pytest tests/test_main.py
       working-directory: RPG
+
+    - name: Run ruff
+      run: ruff check . --fix
+    
+    - name: Run bandit
+      run: bandit -r
+      
