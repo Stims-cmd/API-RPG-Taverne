@@ -1,15 +1,21 @@
 from main import app
+from unittest.mock import patch, MagicMock
 
-"""Test de la page html"""
+
+# ----------------------------------------------------------
+# ----------------- Test de la page html -------------------
+# ----------------------------------------------------------
 def test_serve_index():
     client = app.test_client()
     response = client.get("/")
     assert response.status_code == 200
-from unittest.mock import patch, MagicMock
-from main import app
 
 
-"""Test des requetes GET pour l'obtention de quetes"""
+
+# ----------------------------------------------------------
+# ----------------- Test GET--------------------------------
+# ----------------------------------------------------------
+
 def test_get_quests():
     client = app.test_client()
 
@@ -28,7 +34,10 @@ def test_get_quests():
     assert response.json[0]["title"] == "Test Quest"
 
 
-"""Test des requetes POST pour l'obtention de quetes"""
+
+# ----------------------------------------------------------
+# ----------------- Test POST-------------------------------
+# ----------------------------------------------------------
 def test_create_quest():
     client = app.test_client()
     fake_conn = MagicMock()
@@ -50,7 +59,10 @@ def test_create_quest():
     assert response.json["title"] == "Quest"
 
 
-"Test PUT modification quetes"
+
+# ----------------------------------------------------------
+# ----------------- Test PUT--------------------------------
+# ----------------------------------------------------------
 def test_update_quest():
     client = app.test_client()
     fake_conn = MagicMock()
@@ -71,7 +83,10 @@ def test_update_quest():
     assert response.json["title"] == "Updated"
 
 
-"Test DELETE suppression de quetes"
+
+# ----------------------------------------------------------
+# ----------------- Test DELETE-----------------------------
+# ----------------------------------------------------------
 def test_delete_quest():
     client = app.test_client()
     fake_conn = MagicMock()
