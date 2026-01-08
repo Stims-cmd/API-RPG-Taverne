@@ -9,10 +9,8 @@ body{
     background-position: center;
     background-repeat: no-repeat;
 
-    /* On enlève le grid qui causait le zoom */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    /* FIX : on enlève le centrage qui cassait tout */
+    display: block;
 
     font-family: Arial, sans-serif;
     overflow: hidden;
@@ -47,41 +45,52 @@ body{
 button{
     background-color: #ff7a00;
     border: none;
-    padding: 10px 15px;
+    padding: 8px 12px;
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
+    font-size: 13px;
 }
 
 button:hover{
     background-color: #ff9a3d;
 }
 
-/* --- ÉCRAN DES QUÊTES --- */
-.QuestScreen{
-    display: none;
-    width: 380px;
-    padding: 20px;
-    background-size: cover;
-    background-position: center;
-    border-radius: 10px;
+/* --- LAYOUT PRINCIPAL EN 3 COLONNES --- */
+.game-layout {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr 0.9fr;
+    gap: 15px;
+    width: 100vw;
+    height: 100vh;
+    padding: 15px;
+}
+
+/* --- PANNEAUX --- */
+.left-panel,
+.center-panel,
+.right-panel {
+    background: rgba(0,0,0,0.45);
     backdrop-filter: blur(5px);
-    background-color: rgba(0,0,0,0.4);
+    border-radius: 10px;
+    padding: 12px;
+    overflow-y: auto;
     color: white;
+    font-size: 14px;
 }
 
-.quest-buttons{
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 20px;
+/* Scrollbar stylée */
+.left-panel::-webkit-scrollbar,
+.center-panel::-webkit-scrollbar,
+.right-panel::-webkit-scrollbar {
+    width: 6px;
 }
 
-#aff_quest{
-    background: rgba(0,0,0,0.5);
-    padding: 10px;
-    border-radius: 5px;
-    min-height: 80px;
+.left-panel::-webkit-scrollbar-thumb,
+.center-panel::-webkit-scrollbar-thumb,
+.right-panel::-webkit-scrollbar-thumb {
+    background: #ff7a00;
+    border-radius: 10px;
 }
 
 /* --- HEADER JOUEUR --- */
@@ -91,23 +100,29 @@ button:hover{
     align-items: flex-start;
 
     background: rgba(0, 0, 0, 0.55);
-    padding: 15px 20px;
+    padding: 12px;
     border-radius: 10px;
 
-    margin-bottom: 20px;
-    width: 90%;
+    margin-bottom: 15px;
+    width: 100%;
     color: white;
 }
 
-.player-name, .player-level {
-    font-size: 18px;
-    margin-bottom: 5px;
+.player-name, .player-level, .player-gold {
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.player-stats {
+    font-size: 13px;
+    margin-bottom: 8px;
+    line-height: 1.3;
 }
 
 /* --- BARRE D'XP --- */
 .xp-bar {
     width: 100%;
-    height: 20px;
+    height: 16px;
     background: #333;
     border-radius: 5px;
     overflow: hidden;
@@ -122,36 +137,122 @@ button:hover{
 }
 
 .xp-text {
-    font-size: 14px;
+    font-size: 13px;
 }
+
 /* --- INVENTAIRE --- */
 .inventory {
     background: rgba(0,0,0,0.45);
-    padding: 12px 15px;
+    padding: 10px;
     border-radius: 10px;
-    margin-bottom: 20px;
-    width: 90%; /* même largeur que ton header */
+    margin-bottom: 15px;
+    width: 100%;
     color: white;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
 }
 
 .inventory h3 {
     margin: 0;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
-    color: #ff7a00; /* rappel de ta couleur principale */
+    color: #ff7a00;
 }
 
 .inventory p {
     margin: 0;
-    font-size: 16px;
+    font-size: 14px;
     display: flex;
     align-items: center;
     gap: 6px;
 }
 
-.inventory .key-icon {
-    font-size: 18px;
+#itemList {
+    list-style: none;
+    padding-left: 10px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
+
+#itemList li {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 5px 6px;
+    border-radius: 5px;
+    font-size: 13px;
+}
+
+/* --- QUÊTES --- */
+.quest-buttons{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+#aff_quest{
+    background: rgba(0,0,0,0.5);
+    padding: 8px;
+    border-radius: 5px;
+    min-height: 70px;
+    font-size: 14px;
+}
+
+/* --- SHOP --- */
+.shop {
+    background: rgba(0,0,0,0.45);
+    padding: 10px;
+    border-radius: 10px;
+    width: 100%;
+    margin-top: 15px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.shop button {
+    background-color: #ffaa00;
+    padding: 8px;
+    border-radius: 6px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.shop button:hover {
+    background-color: #ffcc55;
+}
+
+/* --- COMBAT --- */
+#fightLog {
+    background: rgba(0,0,0,0.45);
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: 10px;
+    min-height: 80px;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.left-panel,
+.center-panel,
+.right-panel {
+    padding: 8px;      
+    font-size: 13px;   
+}
+
+.game-layout {
+    display: grid;
+    grid-template-columns: 0.7fr 1fr 0.6fr; 
+    gap: 10px;
+    width: 100vw;
+    height: 100vh;
+    padding: 10px;
+}
+
+h2 { font-size: 16px; } 
+h3 { font-size: 14px; }

@@ -21,56 +21,82 @@
     </div>
 
     <!-- ============================
-         ÉCRAN DES QUÊTES
+         ÉCRAN DES QUÊTES / JEU
     ============================= -->
     <div id="QuestScreen" class="QuestScreen">
 
-        <!-- ===== HEADER JOUEUR ===== -->
-        <div id="playerHeader" class="player-header">
+    <div class="game-layout">
 
-            <!-- Nom du joueur -->
-            <div class="player-name">
-                👤 <span id="playerName">Nom</span>
+        <!-- ===== PANEL GAUCHE : JOUEUR ===== -->
+        <div class="left-panel">
+
+            <div id="playerHeader" class="player-header">
+                <div class="player-name">👤 <span id="playerName">Nom</span></div>
+                <div class="player-level">Niveau <span id="playerLevel">1</span></div>
+                <div class="player-gold">💰 Or : <span id="playerGold">0</span></div>
+
+                <div class="player-stats">
+                    PV : <span id="playerHP">100</span> / <span id="playerMaxHP">100</span><br>
+                    ATK : <span id="playerATK">10</span> | DEF : <span id="playerDEF">5</span> | CHANCE : <span id="playerLCK">2</span>%
+                </div>
+
+                <div class="xp-bar">
+                    <div id="xpFill"></div>
+                </div>
+
+                <div class="xp-text">
+                    XP : <span id="playerXP">0</span> / <span id="xpMax">100</span>
+                </div>
             </div>
 
-            <!-- Niveau -->
-            <div class="player-level">
-                Niveau <span id="playerLevel">1</span>
+            <div id="inventory" class="inventory">
+                <h3>Inventaire</h3>
+                <p>🔑 Clés rares : <span id="keyCount">0</span></p>
+                <p>🎒 Objets :</p>
+                <ul id="itemList"></ul>
             </div>
 
-            <!-- Barre d'XP -->
-            <div class="xp-bar">
-                <div id="xpFill"></div>
-            </div>
-
-            <!-- Texte XP -->
-            <div class="xp-text">
-                XP : <span id="playerXP">0</span> / <span id="xpMax">100</span>
-            </div>
         </div>
 
-        <!-- ===== INVENTAIRE ===== -->
-        <div id="inventory" class="inventory">
-            <h3>Inventaire</h3>
-            <p>🔑 Clés rares : <span id="keyCount">0</span></p>
+        <!-- ===== PANEL CENTRE : QUÊTES ===== -->
+        <div class="center-panel">
+
+            <h2>Quête actuelle :</h2>
+            <p id="aff_quest">Aucune quête chargée.</p>
+
+            <div class="quest-buttons">
+                <button onclick="RandomQuest()">Voir une quête aléatoire</button>
+                <button onclick="AcceptQuest()">Accepter</button>
+                <button onclick="ModifyQuest()">Modifier</button>
+                <button onclick="CreateQuest()">Créer une nouvelle quête</button>
+                <button onclick="DeleteQuest()">Supprimer</button>
+            </div>
+
+            <h2>Boutique :</h2>
+            <div id="shop" class="shop">
+                <button onclick="buyItem('Potion de soin', 10)">🧪 Potion (10 or)</button>
+                <button onclick="buyItem('Kit de réparation', 15)">🧰 Kit (15 or)</button>
+                <button onclick="buyItem('Pierre magique', 25)">💎 Pierre (25 or)</button>
+            </div>
+
         </div>
 
-        <!-- ===== QUÊTE ACTUELLE ===== -->
-        <h2>Quête actuelle :</h2>
-        <p id="aff_quest">Aucune quête chargée.</p>
+        <!-- ===== PANEL DROITE : COMBAT ===== -->
+        <div class="right-panel">
 
-        <!-- ===== BOUTONS ===== -->
-        <div class="quest-buttons">
-            <button onclick="RandomQuest()">Voir une quête aléatoire</button>
-            <button onclick="AcceptQuest()">Accepter</button>
-            <button onclick="ModifyQuest()">Modifier</button>
-            <button onclick="CreateQuest()">Créer une nouvelle quête</button>
+            <h2>Combat :</h2>
+            <button onclick="startFight()">⚔️ Combattre un monstre</button>
+
+            <p id="fightLog"></p>
+
         </div>
 
     </div>
 
-    <script>
+</div>
 
+
+    <script>
         /* =====================================================
            SYSTÈME JOUEUR
         ===================================================== */
@@ -79,23 +105,50 @@
             name: "",
             xp: 0,
             level: 1,
+            gold: 50,
+            stats: {
+                hp: 100,
+                maxHp: 100,
+                attack: 10,
+                defense: 5,
+                luck: 2 // % crit
+            },
             inventory: {
-                keys: 0 // nombre de clés rares
+                keys: 0,
+                items: []
             }
         };
 
-        // Sauvegarde du joueur dans le localStorage
         function savePlayer() {
             localStorage.setItem("player", JSON.stringify(player));
         }
 
-        // Chargement du joueur
         function loadPlayer() {
             const data = localStorage.getItem("player");
-            if (data) player = JSON.parse(data);
+            if (!data) return;
+
+            const loaded = JSON.parse(data);
+
+            player.name = loaded.name || "";
+            player.level = Number.isFinite(loaded.level) ? loaded.level : 1;
+
+            player.xp = Number.isFinite(loaded.xp) ? loaded.xp : 0;
+            if (isNaN(player.xp)) player.xp = 0;
+
+            player.gold = Number.isFinite(loaded.gold) ? loaded.gold : 50;
+
+            player.inventory = loaded.inventory || {};
+            if (!Number.isFinite(player.inventory.keys)) player.inventory.keys = 0;
+            if (!Array.isArray(player.inventory.items)) player.inventory.items = [];
+
+            player.stats = loaded.stats || {};
+            if (!Number.isFinite(player.stats.hp)) player.stats.hp = 100;
+            if (!Number.isFinite(player.stats.maxHp)) player.stats.maxHp = 100;
+            if (!Number.isFinite(player.stats.attack)) player.stats.attack = 10;
+            if (!Number.isFinite(player.stats.defense)) player.stats.defense = 5;
+            if (!Number.isFinite(player.stats.luck)) player.stats.luck = 2;
         }
 
-        // Mise à jour de la barre d'XP
         function updateXPBar() {
             const xpNeeded = player.level * 100;
             const percent = (player.xp / xpNeeded) * 100;
@@ -106,27 +159,98 @@
             document.getElementById("playerLevel").innerText = player.level;
         }
 
-        // Mise à jour de l'inventaire
-        function updateInventory() {
-            const keyCount = document.getElementById("keyCount");
-            if (keyCount) keyCount.innerText = player.inventory.keys;
+        function updateGold() {
+            document.getElementById("playerGold").innerText = player.gold;
         }
 
-        // Ajout d'XP au joueur
+        function updateStatsUI() {
+            document.getElementById("playerHP").innerText = player.stats.hp;
+            document.getElementById("playerMaxHP").innerText = player.stats.maxHp;
+            document.getElementById("playerATK").innerText = player.stats.attack;
+            document.getElementById("playerDEF").innerText = player.stats.defense;
+            document.getElementById("playerLCK").innerText = player.stats.luck;
+        }
+
+        function updateInventory() {
+    document.getElementById("keyCount").innerText = player.inventory.keys;
+
+    const list = document.getElementById("itemList");
+    list.innerHTML = "";
+
+    player.inventory.items.forEach((item, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            ${item.name}
+            <button style="margin-left:10px;" onclick="useItem(${index})">Utiliser</button>
+        `;
+        list.appendChild(li);
+    });
+}
+    function useItem(index) {
+    const item = player.inventory.items[index];
+
+    if (!item) return;
+
+    if (item.name === "Potion de soin") {
+        const heal = Math.floor(Math.random() * 21) + 20; // 20 à 40 HP
+        player.stats.hp += heal;
+        if (player.stats.hp > player.stats.maxHp) player.stats.hp = player.stats.maxHp;
+
+        alert("🧪 Tu utilises une potion ! +" + heal + " PV");
+    }
+
+    else if (item.name === "Kit de réparation") {
+        const boost = Math.floor(Math.random() * 11) + 5; // +5 à +15 PV max
+        player.stats.maxHp += boost;
+        player.stats.hp = player.stats.maxHp;
+
+        alert("🧰 Tu utilises un kit ! PV max +" + boost);
+    }
+
+    else if (item.name === "Pierre magique") {
+        alert("💎 La pierre magique brille... XP x2 pendant 5 minutes !");
+        player.xpBoost = Date.now() + 5 * 60 * 1000; // boost 5 minutes
+    }
+
+    // Retirer l'objet de l'inventaire
+    player.inventory.items.splice(index, 1);
+
+    updateStatsUI();
+    updateInventory();
+    savePlayer();
+}
+
+
+        // XP + GOLD PAR NIVEAU
         function addXP(amount) {
+            amount = Number(amount) || 0;
+            // Boost XP si pierre magique active
+            if (player.xpBoost && Date.now() < player.xpBoost) {
+                amount = Math.floor(amount * 2);
+}
+
             player.xp += amount;
 
-            const xpNeeded = player.level * 100;
+            let xpNeeded = player.level * 100;
 
-            // Passage de niveau
-            if (player.xp >= xpNeeded) {
+            while (player.xp >= xpNeeded) {
                 player.xp -= xpNeeded;
                 player.level++;
-                alert("🎉 LEVEL UP ! Niveau " + player.level);
+
+                const goldEarned = Math.floor(Math.random() * 11) + 10; // 10-20 or
+                player.gold += goldEarned;
+
+                alert(
+                    "🎉 LEVEL UP ! Niveau " + player.level +
+                    "\n💰 Tu gagnes " + goldEarned + " or !"
+                );
+
+                xpNeeded = player.level * 100;
             }
 
             savePlayer();
             updateXPBar();
+            updateGold();
         }
 
         /* =====================================================
@@ -135,7 +259,6 @@
 
         let currentQuest = null;
 
-        // Démarrage du jeu
         function startGame() {
             const name = document.getElementById("Name").value;
 
@@ -149,34 +272,38 @@
 
             document.getElementById("playerName").innerText = player.name;
 
-            // Affichage de l'écran des quêtes
             document.getElementById("screenStart").style.display = "none";
             document.getElementById("QuestScreen").style.display = "block";
 
             updateXPBar();
             updateInventory();
+            updateGold();
+            updateStatsUI();
         }
 
         /* =====================================================
-           GESTION DES QUÊTES
+           QUÊTES
         ===================================================== */
 
-        // Récupère une quête aléatoire depuis l'API
+        function ensureReward(q) {
+            if (!q.reward) {
+                q.reward = Math.floor(Math.random() * 46) + 5;
+            } else {
+                q.reward = Number(q.reward) || Math.floor(Math.random() * 46) + 5;
+            }
+            return q.reward;
+        }
+
         function RandomQuest() {
             fetch("/quests")
                 .then(response => response.json())
                 .then(data => {
-
                     currentQuest = data[0];
 
-                    // Ajout d'une rareté aléatoire
                     const rarities = ["common", "common", "rare"];
                     currentQuest.rarity = rarities[Math.floor(Math.random() * rarities.length)];
 
-                    // Si l'API ne fournit pas de reward → on en génère un
-                    if (!currentQuest.reward) {
-                        currentQuest.reward = Math.floor(Math.random() * 46) + 5;
-                    }
+                    ensureReward(currentQuest);
 
                     document.getElementById("aff_quest").innerText =
                         currentQuest.title + " (" + currentQuest.rarity + ") : " + currentQuest.description;
@@ -184,7 +311,6 @@
                 .catch(error => console.error("Erreur lors de l'appel à /quests :", error));
         }
 
-        // Accepter une quête
         function AcceptQuest() {
             if (!currentQuest) {
                 alert("Aucune quête à accepter !");
@@ -193,7 +319,6 @@
 
             alert("Quête acceptée : " + currentQuest.title);
 
-            // Si la quête est rare → donne une clé
             if (currentQuest.rarity === "rare") {
                 player.inventory.keys++;
                 alert("🔑 Tu as obtenu une clé rare !");
@@ -201,9 +326,7 @@
 
             updateInventory();
 
-            // Si le joueur a 3 clés → quête épique
             if (player.inventory.keys >= 3) {
-
                 player.inventory.keys -= 3;
 
                 currentQuest = {
@@ -214,21 +337,18 @@
                 };
 
                 alert("🔥 Tu débloques une QUÊTE ÉPIQUE !");
-
                 document.getElementById("aff_quest").innerText =
                     currentQuest.title + " : " + currentQuest.description;
 
-                // XP de la quête épique
                 addXP(currentQuest.reward);
                 updateInventory();
                 return;
             }
 
-            // XP des quêtes normales
-            addXP(currentQuest.reward);
+            const reward = ensureReward(currentQuest);
+            addXP(reward);
         }
 
-        // Modifier une quête existante
         function ModifyQuest() {
             if (!currentQuest) {
                 alert("Aucune quête à modifier !");
@@ -240,20 +360,23 @@
 
             if (!newTitle || !newDesc) return;
 
+            const reward = ensureReward(currentQuest);
+
             fetch("/quests/" + currentQuest.id, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     title: newTitle,
                     description: newDesc,
-                    reward: currentQuest.reward,
-                    base_reward: currentQuest.base_reward,
+                    reward: reward,
+                    base_reward: reward,
                     status: currentQuest.status,
                     modified: true
                 })
             })
                 .then(res => res.json())
                 .then(updated => {
+                    ensureReward(updated);
                     currentQuest = updated;
 
                     document.getElementById("aff_quest").innerText =
@@ -261,14 +384,12 @@
                 });
         }
 
-        // Créer une nouvelle quête
         function CreateQuest() {
             const title = prompt("Titre de la nouvelle quête :");
             const desc = prompt("Description :");
 
             if (!title || !desc) return;
 
-            // Génère un reward entre 5 et 50
             const reward = Math.floor(Math.random() * 46) + 5;
 
             fetch("/quests", {
@@ -285,11 +406,7 @@
             })
                 .then(res => res.json())
                 .then(newQuest => {
-
-                    // Si le serveur ne renvoie pas le reward → on le remet
-                    if (!newQuest.reward) {
-                        newQuest.reward = reward;
-                    }
+                    ensureReward(newQuest);
 
                     currentQuest = newQuest;
 
@@ -303,9 +420,127 @@
                     alert("Erreur lors de la création de la quête.");
                 });
         }
+            function DeleteQuest() {
+        if (!currentQuest) {
+            alert("Aucune quête à supprimer !");
+            return;
+        }
+
+        const confirmDelete = confirm("Tu veux vraiment supprimer cette quête ?");
+        if (!confirmDelete) return;
+
+        fetch("/quests/" + currentQuest.id, {
+            method: "DELETE"
+        })
+        .then(res => {
+            if (!res.ok) {
+                alert("Erreur lors de la suppression.");
+                return;
+            }
+
+            alert("🗑️ Quête supprimée !");
+            currentQuest = null;
+
+            document.getElementById("aff_quest").innerText = "Aucune quête chargée.";
+        })
+        .catch(err => {
+            console.error("Erreur DELETE :", err);
+            alert("Impossible de supprimer la quête.");
+        });
+        }
+
 
         /* =====================================================
-           AUTO-LOAD DU JOUEUR
+           SHOP
+        ===================================================== */
+
+        function buyItem(name, price) {
+            price = Number(price) || 0;
+
+            if (player.gold < price) {
+                alert("Tu n'as pas assez d'or !");
+                return;
+            }
+
+            player.gold -= price;
+
+            player.inventory.items.push({ name: name });
+
+            alert("Tu as acheté : " + name);
+
+            updateGold();
+            updateInventory();
+            savePlayer();
+        }
+
+        /* =====================================================
+           COMBAT
+        ===================================================== */
+
+        function startFight() {
+            const monster = {
+                name: "Gobelin",
+                hp: Math.floor(Math.random() * 40) + 40,
+                attack: Math.floor(Math.random() * 8) + 5,
+                defense: Math.floor(Math.random() * 4) + 2
+            };
+
+            let log = "⚔️ Combat contre un " + monster.name + " !<br>";
+
+            while (monster.hp > 0 && player.stats.hp > 0) {
+                // Attaque joueur
+                let dmg = player.stats.attack - monster.defense;
+                if (dmg < 1) dmg = 1;
+
+                if (Math.random() * 100 < player.stats.luck) {
+                    dmg *= 2;
+                    log += "💥 Coup critique ! ";
+                }
+
+                monster.hp -= dmg;
+                log += "Tu infliges " + dmg + " dégâts. (PV monstre : " + monster.hp + ")<br>";
+
+                if (monster.hp <= 0) break;
+
+                // Attaque monstre
+                let dmg2 = monster.attack - player.stats.defense;
+                if (dmg2 < 1) dmg2 = 1;
+
+                player.stats.hp -= dmg2;
+                log += "🩸 Le monstre t'inflige " + dmg2 + " dégâts. (Tes PV : " + player.stats.hp + ")<br>";
+
+                if (player.stats.hp <= 0) break;
+            }
+
+            if (player.stats.hp <= 0) {
+                log += "<br>❌ Tu as perdu le combat !<br>";
+
+                const lost = Math.floor(player.gold * 0.1);
+                player.gold -= lost;
+                log += "💸 Tu perds " + lost + " or.<br>";
+
+                player.stats.hp = player.stats.maxHp;
+            } else {
+                log += "<br>🎉 Victoire !<br>";
+
+                const xpGain = Math.floor(Math.random() * 20) + 10;
+                const goldGain = Math.floor(Math.random() * 15) + 5;
+
+                addXP(xpGain);
+                player.gold += goldGain;
+
+                log += "✨ +" + xpGain + " XP<br>";
+                log += "💰 +" + goldGain + " or<br>";
+            }
+
+            updateGold();
+            updateStatsUI();
+            document.getElementById("fightLog").innerHTML = log;
+            savePlayer();
+        }
+
+        /* =====================================================
+           AUTO-LOAD
         ===================================================== */
 
         loadPlayer();
@@ -317,8 +552,9 @@
             document.getElementById("playerName").innerText = player.name;
             updateXPBar();
             updateInventory();
+            updateGold();
+            updateStatsUI();
         }
-
     </script>
 
 </body>
