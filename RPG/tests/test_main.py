@@ -1,4 +1,4 @@
-from main import app
+from main import *
 from unittest.mock import patch, MagicMock
 
 

@@ -18,8 +18,7 @@ jobs:
         python-version: "3.9"
 
     - name: Install dependencies
-      run: | 
-        export PYTHONPATH=$PYTHONPATH:$(pwd) 
+      run:
         pytest
 
     - name: Run pytest

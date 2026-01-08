@@ -2,4 +2,3 @@ flask
 flask_cors
 mysql-connector-python
 pytest
-pytest-mock
