@@ -18,8 +18,9 @@ jobs:
         python-version: "3.9"
 
     - name: Install dependencies
-      run:
-        pip install -r ./RPG/requirements.txt
+      run: | 
+        export PYTHONPATH=$PYTHONPATH:$(pwd) 
+        pytest
 
     - name: Run pytest
       run: pytest
