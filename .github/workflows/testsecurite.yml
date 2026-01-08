@@ -42,7 +42,7 @@ jobs:
       continue-on-error: true
 
     - name: Run SAFETY
-      run: safety scan
+      run: safety check 
 
 
   build:
