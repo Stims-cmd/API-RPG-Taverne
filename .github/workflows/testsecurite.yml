@@ -21,8 +21,11 @@ jobs:
       run:
         pip install -r ./RPG/requirements.txt
 
-    - name: Installe RUFF 
-      run: pip install ruff    
+    - name: Install RUFF 
+      run: pip install ruff  
+
+    - name: Install BANDIT
+      run: pip install bandit
 
     - name: Run pytest
       run: pytest tests/test_main.py
@@ -30,3 +33,7 @@ jobs:
 
     - name: Run ruff
       run: ruff check . --fix
+    
+    - name: Run bandit
+      run: bandit -r
+      
