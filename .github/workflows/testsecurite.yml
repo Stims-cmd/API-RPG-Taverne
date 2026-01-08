@@ -1,10 +1,11 @@
-name: Test + securité
+name: Test + Sécurité + Build Docker
 
 on:
   push:
   pull_request:
 
 jobs:
+
   tests:
     runs-on: ubuntu-latest
 
@@ -18,8 +19,7 @@ jobs:
         python-version: "3.9"
 
     - name: Install dependencies
-      run:
-        pip install -r ./RPG/requirements.txt
+      run: pip install -r ./RPG/requirements.txt
 
     - name: Install RUFF 
       run: pip install ruff  
@@ -28,7 +28,7 @@ jobs:
       run: pip install bandit
 
     - name: Install SAFETY
-      run: pip install SAFETY
+      run: pip install safety
 
     - name: Run pytest
       run: pytest tests/test_main.py
@@ -41,6 +41,32 @@ jobs:
       run: bandit -r .
       continue-on-error: true
 
-    
     - name: Run SAFETY
-      run: safety check
+      run: safety scan
+
+
+  build:
+    needs: tests           
+    if: github.ref == 'refs/heads/main'   
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout du Repo
+      uses: actions/checkout@v3
+    
+    - name: Build Docker
+      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/RPG_API:3.0 .
+
+    - name: Trivy
+      uses: aquasecurity/trivy-action@0.28.0
+      with:
+        image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/RPG_API:3.0
+
+    - name: Connexion Dockerhub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Image >>> DockerHub
+      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/RPG_API:3.0
