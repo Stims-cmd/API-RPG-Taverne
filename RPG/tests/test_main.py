@@ -1,4 +1,4 @@
-from main import app
+from RPG.main import app
 
 """Test de la page html"""
 def test_serve_index():
