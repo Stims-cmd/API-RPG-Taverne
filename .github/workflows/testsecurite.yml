@@ -21,6 +21,9 @@ jobs:
       run:
         pip install -r ./RPG/requirements.txt
 
+    - name: Installe RUFF 
+      run: pip install ruff    
+
     - name: Run pytest
       run: pytest tests/test_main.py
       working-directory: RPG
