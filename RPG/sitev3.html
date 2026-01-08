@@ -150,6 +150,8 @@
                 items: []
             }
         };
+        player.completedQuests = player.completedQuests || [];
+
 
         function savePlayer() {
             localStorage.setItem("player", JSON.stringify(player));
@@ -359,59 +361,84 @@
         }
 
         function RandomQuest() {
-            fetch("/quests")
-                .then(response => response.json())
-                .then(data => {
-                    currentQuest = data[0];
+    fetch("/quests")
+        .then(response => response.json())
+        .then(data => {
+            // Filtrer les quêtes déjà faites
+            const availableQuests = data.filter(q => !player.completedQuests.includes(q.id));
 
-                    const rarities = ["common", "common", "rare"];
-                    currentQuest.rarity = rarities[Math.floor(Math.random() * rarities.length)];
-
-                    ensureReward(currentQuest);
-
-                    document.getElementById("aff_quest").innerText =
-                        currentQuest.title + " (" + currentQuest.rarity + ") : " + currentQuest.description;
-                })
-                .catch(error => console.error("Erreur lors de l'appel à /quests :", error));
-        }
-
-        function AcceptQuest() {
-            if (!currentQuest) {
-                alert("Aucune quête à accepter !");
-                return;
-            }
-
-            alert("Quête acceptée : " + currentQuest.title);
-
-            if (currentQuest.rarity === "rare") {
-                player.inventory.keys++;
-                alert("🔑 Tu as obtenu une clé rare !");
-            }
-
-            updateInventory();
-
-            if (player.inventory.keys >= 3) {
-                player.inventory.keys -= 3;
-
-                currentQuest = {
-                    title: "⚡ Quête ÉPIQUE",
-                    description: "Une mission dangereuse réservée aux vrais.",
-                    reward: Math.floor(Math.random() * 100) + 80,
-                    rarity: "epic"
-                };
-
-                alert("🔥 Tu débloques une QUÊTE ÉPIQUE !");
+            if (availableQuests.length === 0) {
                 document.getElementById("aff_quest").innerText =
-                    currentQuest.title + " : " + currentQuest.description;
-
-                addXP(currentQuest.reward);
-                updateInventory();
+                    "🎉 Tu as terminé toutes les quêtes disponibles !";
                 return;
             }
 
-            const reward = ensureReward(currentQuest);
-            addXP(reward);
-        }
+            // Choisir une quête aléatoire parmi celles non faites
+            currentQuest = availableQuests[Math.floor(Math.random() * availableQuests.length)];
+
+            // Rareté
+            const rarities = ["common", "common", "rare"];
+            currentQuest.rarity = rarities[Math.floor(Math.random() * rarities.length)];
+
+            ensureReward(currentQuest);
+
+            document.getElementById("aff_quest").innerText =
+                currentQuest.title + " (" + currentQuest.rarity + ") : " + currentQuest.description;
+        })
+        .catch(error => console.error("Erreur lors de l'appel à /quests :", error));
+}
+
+function AcceptQuest() {
+    if (!currentQuest) {
+        alert("Aucune quête à accepter !");
+        return;
+    }
+
+    // Empêcher de refaire la même quête
+    if (player.completedQuests.includes(currentQuest.id)) {
+        alert("❌ Tu as déjà fait cette quête !");
+        return;
+    }
+
+    alert("Quête acceptée : " + currentQuest.title);
+
+    // Récompense rare
+    if (currentQuest.rarity === "rare") {
+        player.inventory.keys++;
+        alert("🔑 Tu as obtenu une clé rare !");
+    }
+
+    updateInventory();
+
+    // Débloquer quête épique
+    if (player.inventory.keys >= 3) {
+        player.inventory.keys -= 3;
+
+        currentQuest = {
+            title: "⚡ Quête ÉPIQUE",
+            description: "Une mission dangereuse réservée aux vrais.",
+            reward: Math.floor(Math.random() * 100) + 80,
+            rarity: "epic"
+        };
+
+        alert("🔥 Tu débloques une QUÊTE ÉPIQUE !");
+        document.getElementById("aff_quest").innerText =
+            currentQuest.title + " : " + currentQuest.description;
+
+        addXP(currentQuest.reward);
+        updateInventory();
+        return;
+    }
+
+    // Récompense XP normale
+    const reward = ensureReward(currentQuest);
+    addXP(reward);
+
+    // Marquer la quête comme faite
+    player.completedQuests.push(currentQuest.id);
+    savePlayer();
+}
+
 
         function ModifyQuest() {
             if (!currentQuest) {
@@ -541,14 +568,22 @@
            COMBAT
         ===================================================== */
 
-        function startFight() {
+        function startFight()
+         {
+            if (Date.now() < fightCooldown) {
+                const sec = Math.ceil((fightCooldown - Date.now()) / 1000);
+                alert("⏳ Attends " + sec + " secondes avant de combattre !");
+            return;
+        }
+
             const monster = {
-        name: "Gobelin",
-        hp: Math.floor(Math.random() * 60) + 60,      // 60 à 120 PV
-        attack: Math.floor(Math.random() * 10) + 10,  // 10 à 20 ATK
-        defense: Math.floor(Math.random() * 5) + 3,   // 3 à 7 DEF
-        crit: 10                                      // 10% critique
+        name: "Gobelin brutal",
+        hp: Math.floor(Math.random() * 80) + 120,     // 120 à 200 PV
+        attack: Math.floor(Math.random() * 15) + 15,  // 15 à 30 ATK
+        defense: Math.floor(Math.random() * 6) + 5,   // 5 à 10 DEF
+        crit: 15                                      // 15% critique
         };
+
 
 
             let log = "⚔️ Combat contre un " + monster.name + " !<br>";
@@ -570,16 +605,23 @@
 
                 // Attaque monstre
                 let playerDefense = player.stats.defense + (player.tempDefense || 0);
-                let dmg2 = monster.attack - player.stats.defense;
+
+                let dmg2 = monster.attack - playerDefense;
+
+                // Variance aléatoire
+                dmg2 += Math.floor(Math.random() * 4); // +0 à +3 dégâts
+
+                // Critique du monstre
                 if (Math.random() * 100 < monster.crit) {
-                dmg2 *= 2;
-                log += "💀 Coup critique du monstre ! ";
+                    dmg2 *= 2;
+                    log += "💀 Coup critique du monstre ! ";
                 }
 
                 if (dmg2 < 1) dmg2 = 1;
 
                 player.stats.hp -= dmg2;
                 log += "🩸 Le monstre t'inflige " + dmg2 + " dégâts. (Tes PV : " + player.stats.hp + ")<br>";
+
 
                 if (player.stats.hp <= 0) break;
             }
@@ -609,9 +651,12 @@
             updateGold();
             updateStatsUI();
             document.getElementById("fightLog").innerHTML = log;
+            fightCooldown = Date.now() + 50000; // 50 secondes de cooldown
             savePlayer();
         }
 let selectedClass = null;
+let fightCooldown = 0; // cooldown global pour les combats
+
 
 function selectClass(cls, el) {
     selectedClass = cls;
