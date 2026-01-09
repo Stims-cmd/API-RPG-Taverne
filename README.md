@@ -36,15 +36,6 @@ Le projet suit une démarche DevOps / DevSecOps simplifiée, mettant l’accent 
 - Modification d’une quête
 - Suppression d’une quête
 
-### Règles de gestion
-
-- Une seule quête peut être active à la fois
-- 
-
-### L'organisation du jeu :
-
-- 
-
 ## 4. Endpoints de l'API
 
 ### GET 
@@ -123,7 +114,83 @@ GitHub Actions est utilisé pour automatiser les étapes clés du cycle de vie e
 - `CD (Continuous Delivery/Deployment)` :
     - Builder l’image Docker de l’API Flask.
 
-​
+## 8. Les failles
+
+Grâce à bandit, nous avons reperé certaines failles que nous avons classé par sévérité : 
+
+### HIGH
+
+  - [CWE-94](https://cwe.mitre.org/data/definitions/94.html)
+      - Il semble qu'une application Flask soit exécutée avec debug=True, ce qui expose le débogueur Werkzeug et permet   l'exécution de code arbitraire.
+
+### MEDIUM
+
+  - [CWE-605](https://cwe.mitre.org/data/definitions/605.html)
+      - Liaison possible à toutes les interfaces. (host="0.0.0.0")
+   
+### LOW
+
+  - [CWE-703](https://cwe.mitre.org/data/definitions/703.html)
+      - Utilisation d'assertion détectée. Le code inclus sera supprimé lors de la compilation en bytecode optimisé.
+
+
+## 9. Notice du jeu 
+Notre jeu fonctionne de telle sorte : 
+
+## Menu d'arrivée 
+
+Lors du lancement du site, vous allez arriver sur une page "Création du personnage"
+C'est ici qu'il va falloir que vous choisisiez votre pseudo et votre personnage.
+Vous aurez le choix entre : 
+  - Guerrier = PV élévés, attaque forte.
+  - Mage = Sorts puissants, faibles défense.
+  - Archer = Dégâts critiques élevés, rapide.
+
+## Menu de jeu 
+### Partie Gauche
+
+C'est l'endroit où vous voyez votre personnage.
+Vous pouvez ainsi savoir :
+  - Votre pseudo
+  - Votre niveau
+  - Votre classe (Guerrier/Mage/Archer)
+  - Votre or
+  - Vos PV
+  - Vos stats (ATK/DEF/CHANCE)
+  - Votre barre d'XP
+  - Votre inventaire
+
+### Partie Centrale
+
+Ici, vous pouvez interragir avec le menu de quêtes. 
+(C'est ici qu'intervient le CRUD vu précédement)
+
+Vous disposez de différents choix :
+  - Voir une quête aléatoire
+  - Accepter la quête
+  - Modifier la quête
+  - Créer une nouvelle quête
+  - Supprimer 
+
+Régles : 
+  - Une seule quête à la fois.
+  - Tu ne peux accepter qu'une seule fois la quête
+  - Une nouvelle quête vaut 8xp
+  - Vous pouvez supprimer une quête de la base de donnée
+  - Vous gagnez +20 or à chaque niveau
+
+Vous disposez également d'une boutique : 
+  - Potion (10 or) = +40 PV
+  - Kit de réparation (15 or) = +20PV et +1 DEF au prochain combat
+  - Pierre magique (25 or) = Double XP pendant 5 min
+
+
+### Partie Droite
+
+Vous avez également la possibilité de réaliser un combat contre un monstre.
+Il vous suffira de cliquer sur le bouton.
+Attention ! Si le monstre vous tue, vous perdrez de l'or !
+
 
 
 
