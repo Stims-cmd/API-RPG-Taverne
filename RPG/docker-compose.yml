@@ -3,6 +3,7 @@ version: '3.8'
 services:
   api:
     build: .
+    image: rpg_api:latest
     container_name: api-quests
     restart: always
     environment:
@@ -29,7 +30,7 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./bdd/sql_quest.sql:/docker-entrypoint-initdb.d/sql_quest.sql
+      - ./BDD/sql_quest.sql:/docker-entrypoint-initdb.d/sql_quest.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
