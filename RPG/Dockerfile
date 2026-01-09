@@ -13,5 +13,7 @@ COPY BDD/BDD.sql.sha256 /sql/BDD.sql.sha256
 WORKDIR /sql
 RUN sha256sum -c BDD.sql.sha256
 
+WORKDIR /RPG
+
 EXPOSE 5000
 CMD ["python", "main.py"]

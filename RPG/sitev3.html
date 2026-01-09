@@ -25,19 +25,19 @@
 
         <div class="class-select">
 
-            <div class="class-card" onclick="selectClass('guerrier')">
+            <div class="class-card" onclick="selectClass('guerrier', this)">
                 <img src="/static/guerrier.png" class="class-img">
                 <h3>Guerrier</h3>
                 <p>PV élevés, attaque forte</p>
             </div>
 
-            <div class="class-card" onclick="selectClass('mage')">
+            <div class="class-card" onclick="selectClass('mage', this)">
                 <img src="/static/mage.png" class="class-img">
                 <h3>Mage</h3>
                 <p>Sorts puissants, faible défense</p>
             </div>
 
-            <div class="class-card" onclick="selectClass('archer')">
+            <div class="class-card" onclick="selectClass('archer', this)">
                 <img src="/static/archer.png" class="class-img">
                 <h3>Archer</h3>
                 <p>Critiques élevés, rapide</p>
@@ -109,8 +109,8 @@
                 <button onclick="buyItem('Potion de soin', 10)">🧪 Potion (10 or)</button>
                 <button onclick="buyItem('Kit de réparation', 15)">🧰 Kit (15 or)</button>
                 <button onclick="buyItem('Pierre magique', 25)">💎 Pierre (25 or)</button>
-                <button onclick="buyItem('Potion de chance', 1000)">🍀 Potion de chance (1000 or)</button>
-                <button onclick="buyItem('Pierre de réinitialisation des quêtes', 350)">⚡ Pierre de réinitialisation des quêtes (350 or)</button>
+                <button onclick="buyItem('Potion de chance', 500)">🍀 Potion de chance (500 or)</button>
+                <button onclick="buyItem('Pierre de réinitialisation des quêtes', 120)">⚡ Pierre de réinitialisation des quêtes (120 or)</button>
             </div>
 
 
@@ -283,6 +283,11 @@ function addXP(amount) {
         let finalGold = goldEarned + Math.floor(goldEarned * (player.stats.luck / 100)); // + chance% or
         player.gold += finalGold;
 
+        player.stats.hp += 5; 
+        player.stats.attack += 5; 
+        player.stats.defense += 3;
+        player.stats.maxHp +=5;
+
         alert(
             "🎉 LEVEL UP ! Niveau " + player.level +
             "\n💰 Tu gagnes " + finalGold + " or !\n" +
@@ -371,27 +376,32 @@ function addXP(amount) {
             return q.reward;
         }
 
-        function RandomQuest() {
-        fetch("/quests")
-            .then(response => response.json())
-            .then(data => {
-                // Filtrer les quêtes déjà faites
-                const availableQuests = data.filter(q => !player.completedQuests.includes(q.id));
+function RandomQuest() {
+    fetch("/quests")
+        .then(response => response.json())
+        .then(data => {
+            const availableQuests = data.filter(q => !player.completedQuests.includes(q.id));
 
-                // Choisir une quête aléatoire parmi celles non faites
-                currentQuest = availableQuests[Math.floor(Math.random() * availableQuests.length)];
+            if (availableQuests.length === 0) {
+                alert("🎉 Tu as terminé toutes les quêtes disponibles !");
+                currentQuest = null;
+                document.getElementById("aff_quest").innerText = "Aucune quête disponible.";
+                return;
+            }
 
-                // Rareté
-                const rarities = ["common", "common", "rare"];
-                currentQuest.rarity = rarities[Math.floor(Math.random() * rarities.length)];
+            currentQuest = availableQuests[Math.floor(Math.random() * availableQuests.length)];
 
-                ensureReward(currentQuest);
+            const rarities = ["common", "common", "rare"];
+            currentQuest.rarity = rarities[Math.floor(Math.random() * rarities.length)];
 
-                document.getElementById("aff_quest").innerText =
-                    currentQuest.title + " (" + currentQuest.rarity + ") : " + currentQuest.description;
-            })
-            .catch(error => console.error("Erreur lors de l'appel à /quests :", error));
-    }
+            ensureReward(currentQuest);
+
+            document.getElementById("aff_quest").innerText =
+                currentQuest.title + " (" + currentQuest.rarity + ") : " + currentQuest.description;
+        })
+        .catch(error => console.error("Erreur lors de l'appel à /quests :", error));
+}
+
 
 function AcceptQuest() {
     if (!currentQuest) {
@@ -439,10 +449,12 @@ function AcceptQuest() {
     const reward = ensureReward(currentQuest);
     addXP(reward);
 
-    // Marquer la quête comme faite
     player.completedQuests.push(currentQuest.id);
     savePlayer();
-}
+
+    currentQuest = null; // 🔥 IMPORTANT
+    document.getElementById("aff_quest").innerText = "Clique pour une nouvelle quête !";
+    }
 
 
         function ModifyQuest() {
@@ -562,7 +574,7 @@ function AcceptQuest() {
 
     // Ajout d'effets pour les objets spécifiques
     if (name === "Potion de chance") {
-        player.stats.luck += 2; // Augmente la chance de 2%
+        player.stats.luck *= 2; // Augmente la chance de 2%
         alert("🍀 Tu as gagné 2% de chance !");
     }
 
