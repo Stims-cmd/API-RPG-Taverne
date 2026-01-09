@@ -2,12 +2,9 @@
 
 ## 1. Présentation du projet 
 
-Ce projet est une application backend en Python exposant une API REST CRUD, accompagnée d’une interface web simple en HTML/CSS/JavaScript.
-
-Le thème choisi est un mini RPG dans lequel un tavernier propose des quêtes à un aventurier.
-Le joueur peut consulter les quêtes, en accepter une (une seule fois), la modifier, ou la refuser.
-
-Le projet suit une démarche DevOps / DevSecOps simplifiée, mettant l’accent sur :
+Ce projet propose une application backend en Python (Flask) exposant une **API REST CRUD**, accompagnée d’une interface web simple en HTML/CSS/JavaScript.
+Le thème : un **mini RPG** où un tavernier attribue des quêtes à un aventurier.
+Le projet suit une démarche **DevOps / DevSecOps** simplifiée, mettant l’accent sur :
 
 - la compréhension du cycle de vie d’une application
 - la version du code
@@ -38,19 +35,14 @@ Le projet suit une démarche DevOps / DevSecOps simplifiée, mettant l’accent 
 
 ## 4. Endpoints de l'API
 
-### GET 
-- `GET /quests` -> Pour récupérer les quêtes
+| Méthode | Endpoint | Description |
+|-----------|-----------|-----------|
+| GET   | /quests  | Pour récupérer les quêtes  |
+| POST   | /quests  | Pour crée une nouvelle quête  |
+| PUT   | /quests/{id}  | Pour modifier la quête  |
+| DELETE   | /quests/{id}  | Pour supprimer la quête  |
 
-### POST 
-- `POST /quests` -> Pour créer une nouvelle quête 
-
-### PUT 
-- `PUT /quests/{id}` -> Pour modifier la quête 
-
-### DELETE 
-- `DELETE /quests/{id}` -> Pour supprimer la quête 
-
-#### Toutes les données sont échangées au format ` JSON `
+Toutes les données sont échangées au format **JSON**
 
 ## 5. Base de données
 
@@ -70,11 +62,13 @@ La base SQL est exécutée dans un conteneur Docker, accessible depuis le conten
 
 ### Exemple de variables (à modifier) :
 
-- `DB_HOST=db` -> La localisation (ici docker)
-- `DB_PORT=5432` -> Le port 
-- `DB_NAME=rpg_quests` -> Le nom
-- `DB_USER=quests_user` -> L'utilisateur
-- `DB_PASSWORD=supersecret` -> Le mot de passe
+| Variable | Exemple | Description |
+|-----------|-----------|-----------|
+| DB_HOST | db  | Hôte Docker  |
+| DB_PORT| 5432  | Port  |
+| DB_NAME | rpg_quests  | Nom de la base  |
+| DB_USER | quests_user  | Utilisateur  |
+| DB_PASSWORD | supersecret  | Mot de passe  |
 
 Cela permet d’éviter de stocker des secrets en clair dans le code source.
 
@@ -118,17 +112,17 @@ GitHub Actions est utilisé pour automatiser les étapes clés du cycle de vie e
 
 Grâce à bandit, nous avons reperé certaines failles que nous avons classé par sévérité : 
 
-### HIGH
+### :red_square: HIGH
 
   - [CWE-94](https://cwe.mitre.org/data/definitions/94.html)
       - Il semble qu'une application Flask soit exécutée avec debug=True, ce qui expose le débogueur Werkzeug et permet   l'exécution de code arbitraire.
 
-### MEDIUM
+### :orange_square: MEDIUM
 
   - [CWE-605](https://cwe.mitre.org/data/definitions/605.html)
       - Liaison possible à toutes les interfaces. (host="0.0.0.0")
    
-### LOW
+### :yellow_square: LOW
 
   - [CWE-703](https://cwe.mitre.org/data/definitions/703.html)
       - Utilisation d'assertion détectée. Le code inclus sera supprimé lors de la compilation en bytecode optimisé.
@@ -151,14 +145,9 @@ Vous aurez le choix entre :
 
 C'est l'endroit où vous voyez votre personnage.
 Vous pouvez ainsi savoir :
-  - Votre pseudo
-  - Votre niveau
-  - Votre classe (Guerrier/Mage/Archer)
-  - Votre or
-  - Vos PV
-  - Vos stats (ATK/DEF/CHANCE)
-  - Votre barre d'XP
-  - Votre inventaire
+  - Votre pseudo, niveau, classe
+  - PV, Or, Stats (ATK/DEF/CHANCE)
+
 
 ### Partie Centrale
 
@@ -167,23 +156,20 @@ Ici, vous pouvez interragir avec le menu de quêtes.
 
 Vous disposez de différents choix :
   - Voir une quête aléatoire
-  - Accepter la quête
-  - Modifier la quête
-  - Créer une nouvelle quête
-  - Supprimer 
+  - Accepter/Modifier/Creer/Supprimer
 
 Régles : 
-  - Une seule quête à la fois.
-  - Tu ne peux accepter qu'une seule fois la quête
-  - Une nouvelle quête vaut 8xp
+  - Une seule quête à la fois
+  - Quête crée = +**8 XP** gagnés
   - Vous pouvez supprimer une quête de la base de donnée
-  - Vous gagnez +20 or à chaque niveau
+  - +20 Or niveau 
 
 Vous disposez également d'une boutique : 
-  - Potion (10 or) = +40 PV
-  - Kit de réparation (15 or) = +20PV et +1 DEF au prochain combat
-  - Pierre magique (25 or) = Double XP pendant 5 min
-
+| Object | Prix | Effet |
+|-----------|-----------|-----------|
+| Potion | 10 Or  | +40 PV  |
+| Kit de réparation | 15 Or  | +20PV et +1DEF au prochain combat  |
+| Pierre magique | 25 Or  | Double XP pendant 5 min  |
 
 ### Partie Droite
 
