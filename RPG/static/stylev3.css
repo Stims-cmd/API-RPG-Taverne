@@ -279,3 +279,9 @@ button:hover{
 /* --- TITRES --- */
 h2 { font-size: 16px; }
 h3 { font-size: 14px; }
+
+
+.class-card.selected {
+    border: 2px solid gold;
+    box-shadow: 0 0 10px gold;
+}

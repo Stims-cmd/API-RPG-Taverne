@@ -109,7 +109,10 @@
                 <button onclick="buyItem('Potion de soin', 10)">🧪 Potion (10 or)</button>
                 <button onclick="buyItem('Kit de réparation', 15)">🧰 Kit (15 or)</button>
                 <button onclick="buyItem('Pierre magique', 25)">💎 Pierre (25 or)</button>
+                <button onclick="buyItem('Potion de chance', 1000)">🍀 Potion de chance (1000 or)</button>
+                <button onclick="buyItem('Pierre de réinitialisation des quêtes', 350)">⚡ Pierre de réinitialisation des quêtes (350 or)</button>
             </div>
+
 
         </div>
 
@@ -258,36 +261,44 @@
 
 
         // XP + GOLD PAR NIVEAU
-        function addXP(amount) {
-            amount = Number(amount) || 0;
-            // Boost XP si pierre magique active
-            if (player.xpBoost && Date.now() < player.xpBoost) {
-                amount = Math.floor(amount * 2);
+        // XP + GOLD PAR NIVEAU
+    // XP + GOLD PAR NIVEAU
+function addXP(amount) {
+    amount = Number(amount) || 0;
+
+    // Boost XP si la pierre magique est active
+    if (player.xpBoost && Date.now() < player.xpBoost) {
+        amount = Math.floor(amount * 2);
+    }
+
+    player.xp += amount;
+
+    let xpNeeded = player.level * 100;
+
+    while (player.xp >= xpNeeded) {
+        player.xp -= xpNeeded;
+        player.level++;
+
+        const goldEarned = Math.floor(Math.random() * 11) + 10; // 10-20 or
+        let finalGold = goldEarned + Math.floor(goldEarned * (player.stats.luck / 100)); // + chance% or
+        player.gold += finalGold;
+
+        alert(
+            "🎉 LEVEL UP ! Niveau " + player.level +
+            "\n💰 Tu gagnes " + finalGold + " or !\n" +
+            `🛡️ Stats mises à jour: PV: ${player.stats.hp}, ATK: ${player.stats.attack}, DEF: ${player.stats.defense}`
+        );
+
+        xpNeeded = player.level * 100;
+    }
+
+    savePlayer();
+    updateXPBar();
+    updateGold();
+    updateStatsUI();  // Mettre à jour l'UI avec les nouvelles stats
 }
 
-            player.xp += amount;
 
-            let xpNeeded = player.level * 100;
-
-            while (player.xp >= xpNeeded) {
-                player.xp -= xpNeeded;
-                player.level++;
-
-                const goldEarned = Math.floor(Math.random() * 11) + 10; // 10-20 or
-                player.gold += goldEarned;
-
-                alert(
-                    "🎉 LEVEL UP ! Niveau " + player.level +
-                    "\n💰 Tu gagnes " + goldEarned + " or !"
-                );
-
-                xpNeeded = player.level * 100;
-            }
-
-            savePlayer();
-            updateXPBar();
-            updateGold();
-        }
 
         /* =====================================================
            ÉCRAN DE DÉMARRAGE
@@ -361,32 +372,26 @@
         }
 
         function RandomQuest() {
-    fetch("/quests")
-        .then(response => response.json())
-        .then(data => {
-            // Filtrer les quêtes déjà faites
-            const availableQuests = data.filter(q => !player.completedQuests.includes(q.id));
+        fetch("/quests")
+            .then(response => response.json())
+            .then(data => {
+                // Filtrer les quêtes déjà faites
+                const availableQuests = data.filter(q => !player.completedQuests.includes(q.id));
 
-            if (availableQuests.length === 0) {
+                // Choisir une quête aléatoire parmi celles non faites
+                currentQuest = availableQuests[Math.floor(Math.random() * availableQuests.length)];
+
+                // Rareté
+                const rarities = ["common", "common", "rare"];
+                currentQuest.rarity = rarities[Math.floor(Math.random() * rarities.length)];
+
+                ensureReward(currentQuest);
+
                 document.getElementById("aff_quest").innerText =
-                    "🎉 Tu as terminé toutes les quêtes disponibles !";
-                return;
-            }
-
-            // Choisir une quête aléatoire parmi celles non faites
-            currentQuest = availableQuests[Math.floor(Math.random() * availableQuests.length)];
-
-            // Rareté
-            const rarities = ["common", "common", "rare"];
-            currentQuest.rarity = rarities[Math.floor(Math.random() * rarities.length)];
-
-            ensureReward(currentQuest);
-
-            document.getElementById("aff_quest").innerText =
-                currentQuest.title + " (" + currentQuest.rarity + ") : " + currentQuest.description;
-        })
-        .catch(error => console.error("Erreur lors de l'appel à /quests :", error));
-}
+                    currentQuest.title + " (" + currentQuest.rarity + ") : " + currentQuest.description;
+            })
+            .catch(error => console.error("Erreur lors de l'appel à /quests :", error));
+    }
 
 function AcceptQuest() {
     if (!currentQuest) {
@@ -546,114 +551,128 @@ function AcceptQuest() {
         ===================================================== */
 
         function buyItem(name, price) {
-            price = Number(price) || 0;
+    price = Number(price) || 0;
 
-            if (player.gold < price) {
-                alert("Tu n'as pas assez d'or !");
-                return;
-            }
+    if (player.gold < price) {
+        alert("Tu n'as pas assez d'or !");
+        return;
+    }
 
-            player.gold -= price;
+    player.gold -= price;
 
-            player.inventory.items.push({ name: name });
+    // Ajout d'effets pour les objets spécifiques
+    if (name === "Potion de chance") {
+        player.stats.luck += 2; // Augmente la chance de 2%
+        alert("🍀 Tu as gagné 2% de chance !");
+    }
 
-            alert("Tu as acheté : " + name);
+    if (name === "Pierre de réinitialisation des quêtes") {
+        // Réinitialise toutes les quêtes pour pouvoir les refaire
+        player.completedQuests = [];
+        alert("⚡ Toutes tes quêtes ont été réinitialisées !");
+    }
 
-            updateGold();
-            updateInventory();
-            savePlayer();
-        }
+    player.inventory.items.push({ name: name });
+
+    alert("Tu as acheté : " + name);
+
+    updateGold();
+    updateInventory();
+    savePlayer();
+}
+
 
         /* =====================================================
            COMBAT
         ===================================================== */
 
-        function startFight()
-         {
-            if (Date.now() < fightCooldown) {
-                const sec = Math.ceil((fightCooldown - Date.now()) / 1000);
-                alert("⏳ Attends " + sec + " secondes avant de combattre !");
-            return;
-        }
+        function startFight() {
+    if (Date.now() < fightCooldown) {
+        const sec = Math.ceil((fightCooldown - Date.now()) / 1000);
+        alert("⏳ Attends " + sec + " secondes avant de combattre !");
+        return;
+    }
 
-            const monster = {
+    const monster = {
         name: "Gobelin brutal",
         hp: Math.floor(Math.random() * 80) + 120,     // 120 à 200 PV
         attack: Math.floor(Math.random() * 15) + 15,  // 15 à 30 ATK
         defense: Math.floor(Math.random() * 6) + 5,   // 5 à 10 DEF
         crit: 15                                      // 15% critique
-        };
+    };
 
+    let log = "⚔️ Combat contre un " + monster.name + " !<br>";
 
+    while (monster.hp > 0 && player.stats.hp > 0) {
+        // Attaque joueur
+        let dmg = player.stats.attack - monster.defense;
+        if (dmg < 1) dmg = 1;
 
-            let log = "⚔️ Combat contre un " + monster.name + " !<br>";
-
-            while (monster.hp > 0 && player.stats.hp > 0) {
-                // Attaque joueur
-                let dmg = player.stats.attack - monster.defense;
-                if (dmg < 1) dmg = 1;
-
-                if (Math.random() * 100 < player.stats.luck) {
-                    dmg *= 2;
-                    log += "💥 Coup critique ! ";
-                }
-
-                monster.hp -= dmg;
-                log += "Tu infliges " + dmg + " dégâts. (PV monstre : " + monster.hp + ")<br>";
-
-                if (monster.hp <= 0) break;
-
-                // Attaque monstre
-                let playerDefense = player.stats.defense + (player.tempDefense || 0);
-
-                let dmg2 = monster.attack - playerDefense;
-
-                // Variance aléatoire
-                dmg2 += Math.floor(Math.random() * 4); // +0 à +3 dégâts
-
-                // Critique du monstre
-                if (Math.random() * 100 < monster.crit) {
-                    dmg2 *= 2;
-                    log += "💀 Coup critique du monstre ! ";
-                }
-
-                if (dmg2 < 1) dmg2 = 1;
-
-                player.stats.hp -= dmg2;
-                log += "🩸 Le monstre t'inflige " + dmg2 + " dégâts. (Tes PV : " + player.stats.hp + ")<br>";
-
-
-                if (player.stats.hp <= 0) break;
-            }
-
-            if (player.stats.hp <= 0) {
-                log += "<br>❌ Tu as perdu le combat !<br>";
-
-                const lost = Math.floor(player.gold * 0.1);
-                player.gold -= lost;
-                log += "💸 Tu perds " + lost + " or.<br>";
-
-                player.stats.hp = player.stats.maxHp;
-            } else {
-                log += "<br>🎉 Victoire !<br>";
-
-                const xpGain = Math.floor(Math.random() * 20) + 10;
-                const goldGain = Math.floor(Math.random() * 15) + 5;
-
-                addXP(xpGain);
-                player.gold += goldGain;
-
-                log += "✨ +" + xpGain + " XP<br>";
-                log += "💰 +" + goldGain + " or<br>";
-            }
-            player.tempDefense = 0; 
-
-            updateGold();
-            updateStatsUI();
-            document.getElementById("fightLog").innerHTML = log;
-            fightCooldown = Date.now() + 50000; // 50 secondes de cooldown
-            savePlayer();
+        if (Math.random() * 100 < player.stats.luck) {
+            dmg *= 2;
+            log += "💥 Coup critique ! ";
         }
+
+        monster.hp -= dmg;
+        log += "Tu infliges " + dmg + " dégâts. (PV monstre : " + monster.hp + ")<br>";
+
+        if (monster.hp <= 0) break;
+
+        // Attaque du monstre (chance d'annulation des dégâts)
+        if (Math.random() * 100 < player.stats.luck) {
+            log += "✨ Tu esquives l'attaque du monstre grâce à ta chance !<br>";
+            continue; // Aucun dégât ne sera infligé
+        }
+
+        let playerDefense = player.stats.defense + (player.tempDefense || 0);
+        let dmg2 = monster.attack - playerDefense;
+
+        // Variance aléatoire
+        dmg2 += Math.floor(Math.random() * 4); // +0 à +3 dégâts
+
+        // Critique du monstre
+        if (Math.random() * 100 < monster.crit) {
+            dmg2 *= 2;
+            log += "💀 Coup critique du monstre ! ";
+        }
+
+        if (dmg2 < 1) dmg2 = 1;
+
+        player.stats.hp -= dmg2;
+        log += "🩸 Le monstre t'inflige " + dmg2 + " dégâts. (Tes PV : " + player.stats.hp + ")<br>";
+
+        if (player.stats.hp <= 0) break;
+    }
+
+    if (player.stats.hp <= 0) {
+        log += "<br>❌ Tu as perdu le combat !<br>";
+
+        const lost = Math.floor(player.gold * 0.1);
+        player.gold -= lost;
+        log += "💸 Tu perds " + lost + " or.<br>";
+
+        player.stats.hp = player.stats.maxHp;
+    } else {
+        log += "<br>🎉 Victoire !<br>";
+
+        const xpGain = Math.floor(Math.random() * 20) + 10;
+        const goldGain = Math.floor(Math.random() * 15) + 5;
+
+        addXP(xpGain);
+        player.gold += goldGain;
+
+        log += "✨ +" + xpGain + " XP<br>";
+        log += "💰 +" + goldGain + " or<br>";
+    }
+    player.tempDefense = 0; 
+
+    updateGold();
+    updateStatsUI();
+    document.getElementById("fightLog").innerHTML = log;
+    fightCooldown = Date.now() + 50000; // 50 secondes de cooldown
+    savePlayer();
+}
+
 let selectedClass = null;
 let fightCooldown = 0; // cooldown global pour les combats
 
@@ -661,10 +680,12 @@ let fightCooldown = 0; // cooldown global pour les combats
 function selectClass(cls, el) {
     selectedClass = cls;
 
+    // Retirer la classe 'selected' de toutes les cartes de classe
     document.querySelectorAll(".class-card").forEach(c => c.classList.remove("selected"));
+
+    // Ajouter la classe 'selected' à l'élément cliqué
     el.classList.add("selected");
 }
-
 
 
 
